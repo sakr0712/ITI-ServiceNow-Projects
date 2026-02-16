@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Library Management System</title>
+  </head>
+  <body>
+    <script>
+      // =================================================================================================
+      // Library Management System, works on alerts, no html interface, just the scripts for functionality
+      // =================================================================================================
+
+      const library = []; //The array containing all the books
+
+      // ---------- Functions working in the background ----------
+      function normalize(str) {
+        return (str ?? "").trim().toLowerCase();
+      }
+
+      function getNumberInput(message) {
+        const input = prompt(message);
+        if (input === null) return null; // user cancelled
+        const num = Number(input);
+        if (!Number.isFinite(num)) return NaN;
+        return num;
+      }
+
+      function findBookByTitle(title) {
+        const key = normalize(title);
+        return library.find((b) => normalize(b.title) === key) || null;
+      }
+
+      function getBookStatus(availableCopies) {
+        if (availableCopies > 2) return "Available";
+        if (availableCopies >= 1 && availableCopies <= 2) return "Limited";
+        return "Out of Stock";
+      }
+      // =====================
+      // User side functions
+      // =====================
+      // ---------- Function 1: Add Book ----------
+      function addBook() {
+        const title = prompt("Enter Book Title:");
+        if (title === null) return; // cancelled
+        if (normalize(title) === "") {
+          alert("❌ Book title cannot be empty.");
+          return;
+        }
+
+        const author = prompt("Enter Author Name:");
+        if (author === null) return; // cancelled
+
+        const copies = getNumberInput("Enter Number of Copies (must be > 0):");
+        if (copies === null) return; // cancelled
+        if (!Number.isFinite(copies) || copies <= 0) {
+          alert("❌ Copies must be a number greater than 0.");
+          return;
+        }
+
+        // Bonus 1 + 2: Prevent duplicate books (case-insensitive)
+        const existing = findBookByTitle(title);
+
+        if (existing) {
+          existing.availableCopies += copies;
+          alert(
+            `✅ "${existing.title}" already exists. Copies increased by ${copies}.`,
+          );
+        } else {
+          const book = {
+            title: title.trim(),
+            author: (author ?? "").trim(),
+            availableCopies: copies,
+            borrowedCopies: 0,
+            borrowCount: 0, // Bonus 5
+          };
+          library.push(book);
+          alert(
+            `✅ Book added successfully: "${book.title}" by ${book.author}.`,
+          );
+        }
+      }
+
+      // ---------- Function 2: Borrow Book ----------
+      function borrowBook() {
+        const title = prompt("Enter Book Title to Borrow:");
+        if (title === null) return;
+
+        const book = findBookByTitle(title);
+
+        if (!book) {
+          alert("❌ Book not found in the library.");
+          return;
+        }
+
+        if (book.availableCopies <= 0) {
+          alert(`⚠️ "${book.title}" is currently out of stock.`);
+          return;
+        }
+
+        book.availableCopies -= 1;
+        book.borrowedCopies += 1;
+        book.borrowCount += 1; // Bonus 5
+
+        alert(`✅ Book borrowed successfully: "${book.title}".`);
+      }
+
+      // ---------- Function 3: Return Book ----------
+      function returnBook() {
+        const title = prompt("Enter Book Title to Return:");
+        if (title === null) return;
+
+        const book = findBookByTitle(title);
+
+        if (!book) {
+          alert("❌ Book not found in the library.");
+          return;
+        }
+
+        if (book.borrowedCopies > 0) {
+          book.borrowedCopies -= 1;
+          book.availableCopies += 1;
+          alert(`✅ Book returned successfully: "${book.title}".`);
+        } else {
+          alert(`⚠️ No borrowed copies to return for "${book.title}".`);
+        }
+      }
+
+      // ---------- Function 4: Calculate Total Books ----------
+      function calculateTotalBooks() {
+        let totalAvailable = 0;
+        let totalBorrowed = 0;
+
+        for (const book of library) {
+          totalAvailable += book.availableCopies;
+          totalBorrowed += book.borrowedCopies;
+        }
+
+        return { totalAvailable, totalBorrowed };
+      }
+
+      // ---------- Function 5: Show Report ----------
+      function showReport() {
+        if (library.length === 0) {
+          alert("📚 Library is currently empty.");
+          return;
+        }
+
+        const totals = calculateTotalBooks();
+
+        let report = "📚 Library Report\n\n";
+
+        for (let i = 0; i < library.length; i++) {
+          const b = library[i];
+          const status = getBookStatus(b.availableCopies); // Bonus 3
+
+          report += `${i + 1}) ${b.title}\n`;
+          report += `   Author: ${b.author || "Unknown"}\n`;
+          report += `   Available Copies: ${b.availableCopies}\n`;
+          report += `   Borrowed Copies: ${b.borrowedCopies}\n`;
+          report += `   Status: ${status}\n`;
+          report += `   Borrow History (Count): ${b.borrowCount}\n\n`;
+        }
+
+        report += "----------------------------\n";
+        report += `Total Available Books: ${totals.totalAvailable}\n`;
+        report += `Total Borrowed Books: ${totals.totalBorrowed}\n`;
+
+        // Display using alert (or console.log)
+        alert(report);
+        console.log(report);
+      }
+
+      // ==========================================
+      // Main menu exits only on user Exit choice
+      // ==========================================
+      function mainMenu() {
+        while (true) {
+          const choice = prompt(
+            "Library Management System\n\n" +
+              "1 → Add New Book\n" +
+              "2 → Borrow Book\n" +
+              "3 → Return Book\n" +
+              "4 → Show Library Report\n" +
+              "5 → Exit\n\n" +
+              "Enter your choice:",
+          );
+
+          if (choice === null) continue; // user hit cancel
+
+          switch (choice.trim()) {
+            case "1":
+              addBook();
+              break;
+            case "2":
+              borrowBook();
+              break;
+            case "3":
+              returnBook();
+              break;
+            case "4":
+              showReport();
+              break;
+            case "5":
+              alert("👋 Exiting Library System. Goodbye!");
+              return;
+            default:
+              alert("❌ Invalid choice. Please enter 1–5.");
+          }
+        }
+      }
+
+      // ========
+      //  Start
+      // ========
+      mainMenu();
+    </script>
+  </body>
+</html>

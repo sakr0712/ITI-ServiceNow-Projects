@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <body>
+    <h1>Tasks List</h1>
+    <input type="text" id="myInput" placeholder="Enter task..." />
+    <button onclick="addItem()">Add</button>
+    <h1>Current Tasks: <span id="counter">0</span></h1>
+    <ul id="myList"></ul>
+
+    <script>
+      function updateCounter() {
+        var count = document.querySelectorAll("#myList li").length;
+        document.getElementById("counter").textContent = count;
+      }
+      function addItem() {
+        var input = document.getElementById("myInput");
+        var value = input.value;
+
+        if (value.trim() !== "") {
+          //add
+          var li = document.createElement("li");
+          li.textContent = value + " ";
+
+          // delete
+          var deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+
+          deleteBtn.onclick = function () {
+            li.remove();
+            updateCounter();
+          };
+
+          li.appendChild(deleteBtn);
+          document.getElementById("myList").appendChild(li);
+
+          input.value = "";
+          updateCounter();
+        }
+      }
+    </script>
+  </body>
+</html>

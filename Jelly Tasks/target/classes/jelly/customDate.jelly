@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly xmlns:j="jelly:core">
+
+  <h2>Task 1: Create Custom Date</h2>
+
+  <j:new className="java.util.Date" var="customDate"/>
+  <j:invoke on="${customDate}" method="setTime">
+    <j:arg type="long" value="1766658645000"/>
+  </j:invoke>
+
+  Custom Date 1 (Christmas 2025 10:30:45): ${customDate}<br/>
+
+  <j:new className="java.text.SimpleDateFormat" var="fmt1">
+    <j:arg value="yyyy-MM-dd HH:mm:ss"/>
+  </j:new>
+
+  <j:invoke on="${fmt1}" method="format" var="customFormatted">
+    <j:arg value="${customDate}"/>
+  </j:invoke>
+
+  Formatted: ${customFormatted}<br/><br/>
+
+
+  <h2>Task 2: Parse Date from String</h2>
+
+  <j:new className="java.text.SimpleDateFormat" var="inputFormat">
+    <j:arg value="yyyy-MM-dd HH:mm:ss"/>
+  </j:new>
+
+  <j:invoke on="${inputFormat}" method="parse" var="parsedDate">
+    <j:arg value="2025-12-25 15:30:00"/>
+  </j:invoke>
+
+  Parsed Date: ${parsedDate}<br/>
+
+  <j:new className="java.text.SimpleDateFormat" var="yearFmt">
+    <j:arg value="yyyy"/>
+  </j:new>
+  <j:new className="java.text.SimpleDateFormat" var="monthFmt">
+    <j:arg value="MM"/>
+  </j:new>
+  <j:new className="java.text.SimpleDateFormat" var="dayFmt">
+    <j:arg value="dd"/>
+  </j:new>
+
+  <j:invoke on="${yearFmt}" method="format" var="y">
+    <j:arg value="${parsedDate}"/>
+  </j:invoke>
+
+  <j:invoke on="${monthFmt}" method="format" var="m">
+    <j:arg value="${parsedDate}"/>
+  </j:invoke>
+
+  <j:invoke on="${dayFmt}" method="format" var="d">
+    <j:arg value="${parsedDate}"/>
+  </j:invoke>
+
+  Year: ${y}, Month: ${m}, Day: ${d}<br/>
+
+</j:jelly>

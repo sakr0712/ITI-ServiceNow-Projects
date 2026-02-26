@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+    <!-- Design CSS -->
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #dfac4e, #c81c1c);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .login-card {
+        background: white;
+        padding: 40px;
+        width: 320px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+
+      .login-card h2 {
+        margin-bottom: 25px;
+      }
+
+      .login-card input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
+
+      .login-card button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .login-card button:hover {
+        background-color: #2e59d9;
+      }
+    </style>
+  </head>
+
+  <!-- Body HTML -->
+  <body ng-app="myApp">
+    <div class="login-card" ng-controller="myCtrl">
+      <h2>Login</h2>
+
+      <input type="text" placeholder="Enter Email..." ng-model="email" />
+      <input
+        type="password"
+        placeholder="Enter Password..."
+        ng-model="password"
+      />
+
+      <button ng-click="login()">Login</button>
+    </div>
+
+    <!-- Functionality Script -->
+    <script>
+      var app = angular.module("myApp", []);
+      app.controller("myCtrl", function ($scope) {
+        $scope.login = function () {
+          if ($scope.email && $scope.password) {
+            alert("Welcome " + $scope.email);
+          } else {
+            alert("Please enter email and password");
+          }
+          $scope.email = "";
+          $scope.password = "";
+        };
+      });
+    </script>
+  </body>
+</html>

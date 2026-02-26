@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<j:jelly xmlns:j="jelly:core" trim="false">
+
+<!--Varriables Setting-->
+<j:new className="java.util.ArrayList" 
+var="usersList"/>
+<j:new className="java.util.HashMap" 
+var="user1"/>
+<j:new className="java.util.HashMap" 
+var="user2"/>
+<j:new className="java.util.HashMap" 
+var="user3"/>
+
+<!--Set Values user1-->
+<j:invoke on="${user1}" method = "put">
+<j:arg value="name"/>
+<j:arg value="Seif"/>
+</j:invoke>
+<j:invoke on="${user1}" method = "put">
+<j:arg value="age"/>
+<j:arg value="24"/>
+</j:invoke>
+<j:invoke on="${user1}" method = "put">
+<j:arg value="city"/>
+<j:arg value="Cairo"/>
+</j:invoke>
+<!--Set Values user2-->
+<j:invoke on="${user2}" method = "put">
+<j:arg value="name"/>
+<j:arg value="Ahmed"/>
+</j:invoke>
+<j:invoke on="${user2}" method = "put">
+<j:arg value="age"/>
+<j:arg value="23"/>
+</j:invoke>
+<j:invoke on="${user2}" method = "put">
+<j:arg value="city"/>
+<j:arg value="Alexandria"/>
+</j:invoke>
+<!--Set Values user3-->
+<j:invoke on="${user3}" method = "put">
+<j:arg value="name"/>
+<j:arg value="Mohamed"/>
+</j:invoke>
+<j:invoke on="${user3}" method = "put">
+<j:arg value="age"/>
+<j:arg value="25"/>
+</j:invoke>
+<j:invoke on="${user3}" method = "put">
+<j:arg value="city"/>
+<j:arg value="Asyut"/>
+</j:invoke>
+
+<!--Set Array Values-->
+<j:invoke on="${usersList}" method="add">
+<j:arg value="${user1}"/>
+</j:invoke>
+<j:invoke on="${usersList}" method="add">
+<j:arg value="${user2}"/>
+</j:invoke>
+<j:invoke on="${usersList}" method="add">
+<j:arg value="${user3}"/>
+</j:invoke>
+<!--Display Values-->
+<j:forEach var="u" items="${usersList}">
+====== <br/>
+User <br/>
+====== <br/>
+    <j:invoke on="${u}" method="get" var="userName">
+        <j:arg value="name"/>
+    </j:invoke>
+    Name: ${userName}<br/>
+    <j:invoke on="${u}" method="get" var="userAge">
+        <j:arg value="age"/>
+    </j:invoke>
+    Age: ${userAge}<br/>
+    <j:invoke on="${u}" method="get" var="userCity">
+        <j:arg value="city"/>
+    </j:invoke>
+    City: ${userCity}<br/>
+</j:forEach>
+</j:jelly>

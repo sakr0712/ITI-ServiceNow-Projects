@@ -1,0 +1,7 @@
+SINGLE
+----------
+mvn exec:java '-Dexec.mainClass=org.apache.commons.jelly.Jelly' '-Dexec.args=variable.jelly -o page.html'
+
+MULTIPLE
+----------
+mvn clean compile exec:java "-Dexec.mainClass=Main“  

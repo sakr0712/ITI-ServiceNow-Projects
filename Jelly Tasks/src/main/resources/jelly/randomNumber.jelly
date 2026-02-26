@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<j:jelly xmlns:j="jelly:core" trim="false">
+
+<h2>Random Numbers Generator</h2>
+
+<j:new className="java.util.Random" var="rand"/>
+
+<j:forEach var="i" begin="1" end="5">
+
+    <j:invoke on="${rand}" method="nextInt" var="randomNumber">
+        <j:arg type="int" value="100"/>
+    </j:invoke>
+
+    <p><j:expr value="${randomNumber}"/></p>
+
+</j:forEach>
+
+</j:jelly>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <body>
+    <div ng-app="firstView">
+      <div ng-controller="firstCtrl">
+        <h1>{{Fname}}</h1>
+      </div>
+      <div ng-controller="secondCtrl">
+        <h1>{{Lname}}</h1>
+      </div>
+    </div>
+  </body>
+  <script>
+    var app = angular.module("firstView", []);
+    app.controller("firstCtrl", function ($scope) {
+      $scope.Fname = "Seif";
+    });
+    app.controller("secondCtrl", function ($scope) {
+      $scope.Lname = "Sakr";
+    });
+  </script>
+</html>

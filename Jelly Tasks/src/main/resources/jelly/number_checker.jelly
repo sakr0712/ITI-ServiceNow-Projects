@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly xmlns:j="jelly:core" trim="false">
+
+<j:new className="com.example.Functions" var="F"/>
+
+<j:choose>
+    <j:when test="${F.isEven(4)}">
+        Your number is Even!
+    </j:when>
+    <j:otherwise>
+        Your number is Odd!
+    </j:otherwise>
+</j:choose>
+
+</j:jelly>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login Form</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+    <!--------- 
+    CSS STYLES 
+    ----------->
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #dfac4e, #c81c1c);
+      }
+
+      .card {
+        width: 380px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      }
+
+      .title {
+        text-align: center;
+        margin: 0 0 18px;
+        font-size: 22px;
+      }
+
+      .field {
+        margin-bottom: 14px;
+        text-align: left;
+      }
+
+      .label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #333;
+      }
+
+      .input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .input:focus {
+        border-color: #4e73df;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        border-radius: 8px;
+        background: #4e73df;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.25s;
+      }
+
+      .btn:hover {
+        background: #2e59d9;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .alert {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .alert-success {
+        background: #e8f7ee;
+        border: 1px solid #bfe7cd;
+        color: #1f7a3a;
+      }
+
+      .alert-error {
+        background: #fdeaea;
+        border: 1px solid #f6bcbc;
+        color: #b21f2d;
+      }
+    </style>
+  </head>
+  <!--------- 
+    FORM BODY 
+    ----------->
+  <body ng-app="myApp">
+    <div class="card" ng-controller="myCtrl">
+      <h2 class="title">Login</h2>
+
+      <form name="loginForm" novalidate>
+        <div class="field">
+          <label class="label" for="email">Email</label>
+          <input
+            id="email"
+            class="input"
+            type="email"
+            name="email"
+            placeholder="admin@gmail.com"
+            ng-model="email"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label class="label" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="input"
+            name="password"
+            placeholder="123456"
+            ng-model="password"
+            required
+          />
+        </div>
+        <button
+          type="button"
+          class="btn"
+          ng-click="login()"
+          ng-disabled="!email || !password"
+        >
+          Login
+        </button>
+      </form>
+
+      <div class="alert alert-success" ng-if="success">
+        Welcome {{ outputName }}
+      </div>
+
+      <div class="alert alert-error" ng-if="failed">
+        Invalid email or password
+      </div>
+    </div>
+    <!----------------------- 
+    FUNCTIONALITY SCRIPTS 
+    ------------------------>
+    <script>
+      var app = angular.module("myApp", []);
+
+      app.controller("myCtrl", function ($scope) {
+        $scope.email = "";
+        $scope.password = "";
+        $scope.outputName = "";
+
+        $scope.success = false;
+        $scope.failed = false;
+
+        $scope.login = function () {
+          $scope.success = false;
+          $scope.failed = false;
+
+          var isValid =
+            $scope.email === "admin@gmail.com" && $scope.password === "123456";
+
+          if (isValid) {
+            $scope.success = true;
+            $scope.outputName = $scope.email;
+          } else {
+            $scope.failed = true;
+          }
+        };
+      });
+    </script>
+  </body>
+</html>

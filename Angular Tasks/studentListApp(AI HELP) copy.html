@@ -1,0 +1,245 @@
+<!-- 
+  * HOME TASK - STUDENT LIST APP
+!THIS VERSION OF THE TASK IS HANDWRITTEN WITH MULTIPLE FUNCTIONALITIES THAT DID NOT NECESSARILY EXIST IN THE LECTURES.
+!I HAVE USED BOTH CHATGPT AND PREVIOUS EXPERIENCE IN CREATING A SCALABLLE AND USER-FRIENDLY STUDENT LIST APP.
+!PLEASE REVIEW AND LET ME KNOW IF YOU HAVE ANY QUESTIONS OR SUGGESTIONS FOR IMPROVEMENT.
+!FOR GRADING PURPOSES PLEASE REFER TO THE HANDWRITTEN VERSION OF THE TASK AS IT CONTAINS MORE LECTURE-RELATED FUNCTIONALITY. 
+!THIS VERSION IS MORE OF A PERSONAL PROJECT TO SHOWCASE WHAT I CAN DO WITH ANGULARJS.
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student List App</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+    <!-- *------ 
+    !CSS STYLES 
+    *--------- -->
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #dfac4e, #c81c1c);
+      }
+
+      .card {
+        width: 420px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      }
+
+      .title {
+        text-align: center;
+        margin: 0 0 18px;
+        font-size: 22px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+        text-align: left;
+      }
+
+      .label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #333;
+      }
+
+      .input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .input:focus {
+        border-color: #4e73df;
+      }
+
+      .help {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #b21f2d;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        border-radius: 8px;
+        background: #4e73df;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.25s;
+      }
+
+      .btn:hover {
+        background: #2e59d9;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .list {
+        margin-top: 16px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: #fafafa;
+      }
+
+      .name {
+        font-size: 14px;
+        color: #111;
+        font-weight: 600;
+      }
+
+      .del {
+        border: none;
+        background: #b21f2d;
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      .del:hover {
+        filter: brightness(0.95);
+      }
+
+      .empty {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 14px;
+        text-align: center;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+      }
+    </style>
+  </head>
+
+  <!-- *------ 
+    !MAIN FORM 
+    *--------- -->
+  <body ng-app="studentApp">
+    <div class="card" ng-controller="studentCtrl">
+      <h2 class="title">Student List App</h2>
+
+      <form name="studentForm" novalidate ng-submit="addStudent(studentForm)">
+        <div class="field">
+          <label class="label" for="studentName">Student Name</label>
+          <input
+            id="studentName"
+            class="input"
+            type="text"
+            name="studentName"
+            placeholder="Type a student name..."
+            ng-model="studentName"
+            ng-trim="true"
+            required
+            ng-minlength="2"
+            ng-maxlength="40"
+            ng-pattern="/^[A-Za-z ]+$/"
+          />
+
+          <!-- Validation messages -->
+          <div
+            class="help"
+            ng-if="studentForm.studentName.$touched && studentForm.studentName.$invalid"
+          >
+            <div ng-if="studentForm.studentName.$error.required">
+              Name is required.
+            </div>
+            <div ng-if="studentForm.studentName.$error.minlength">
+              Name must be at least 2 characters.
+            </div>
+            <div ng-if="studentForm.studentName.$error.maxlength">
+              Name must be at most 40 characters.
+            </div>
+            <div ng-if="studentForm.studentName.$error.pattern">
+              Name must contain letters and spaces only.
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" ng-disabled="studentForm.$invalid">
+          Add Student
+        </button>
+      </form>
+
+      <!-- Empty state -->
+      <div class="empty" ng-if="students.length === 0">
+        No students added yet.
+      </div>
+
+      <!-- Students list -->
+      <ul class="list" ng-if="students.length > 0">
+        <li class="item" ng-repeat="s in students track by $index">
+          <span class="name">{{ s }}</span>
+          <button class="del" type="button" ng-click="deleteStudent($index)">
+            Delete
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- *------------------
+     !FUNCTIONALITY SCRIPTS 
+    *-------------------- -->
+    <script>
+      var app = angular.module("studentApp", []);
+
+      app.controller("studentCtrl", function ($scope) {
+        $scope.studentName = "";
+        $scope.students = [];
+
+        $scope.addStudent = function (form) {
+          if (form.$invalid) return;
+
+          var name = ($scope.studentName || "").trim();
+          if (!name) return;
+
+          $scope.students.push(name);
+          $scope.studentName = "";
+
+          form.$setPristine();
+          form.$setUntouched();
+        };
+
+        $scope.deleteStudent = function (index) {
+          $scope.students.splice(index, 1);
+        };
+      });
+    </script>
+  </body>
+</html>

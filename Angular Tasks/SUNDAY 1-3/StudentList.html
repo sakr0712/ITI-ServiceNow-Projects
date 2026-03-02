@@ -1,0 +1,189 @@
+<!-- 
+!SUNDAY 1-3-2026 HOME TASK 1
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student List</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+    <!-- 
+    !CSS STYTLES
+    -->
+    <style>
+      body {
+        font-family: "Times New Roman", Times, serif;
+        background: #fff;
+        margin: 0;
+        padding: 40px 16px;
+        color: #111;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 28px;
+        margin: 0 0 14px;
+        font-weight: 700;
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .controls input {
+        width: 220px;
+        height: 26px;
+        padding: 0 8px;
+        border: 1px solid #999;
+        outline: none;
+      }
+      .controls select {
+        width: 220px;
+        height: 28px;
+        border: 1px solid #999;
+        outline: none;
+        background: #fff;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      th,
+      td {
+        border: 1px solid #cfcfcf;
+        padding: 10px 12px;
+        text-align: center;
+        font-size: 16px;
+      }
+      th {
+        font-weight: 700;
+      }
+      .topper {
+        color: #168a00;
+        font-weight: 700;
+      }
+      .low {
+        color: #d00000;
+        font-weight: 700;
+      }
+      .empty {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border: 1px dashed #999;
+        width: fit-content;
+      }
+    </style>
+  </head>
+
+  <!-- 
+    !MAIN BODY
+    -->
+  <body>
+    <div class="wrap" ng-app="studentApp" ng-controller="mainCtrl">
+      <student-list students="students"></student-list>
+    </div>
+
+    <!-- 
+    !FUNCTIONALITY SCRIPTS
+    -->
+    <script>
+      var app = angular.module("studentApp", []);
+
+      app.controller("mainCtrl", function ($scope) {
+        $scope.students = [
+          { name: "SEIF", marks: 90 },
+          { name: "ZIAD", marks: 60 },
+          { name: "AHMED", marks: 30 },
+          { name: "KAREEM", marks: 10 },
+          { name: "MOHAMED", marks: 100 },
+        ];
+      });
+
+      app.directive("studentList", function () {
+        return {
+          scope: { students: "=" },
+          template: `
+            <h1>Student List</h1>
+
+            <div class="controls">
+              <input type="text" placeholder="Search by name..." ng-model="q" />
+
+              <select ng-model="sortOpt" ng-change="applySort()">
+                <option value="name">Sort by Name</option>
+                <option value="marksDesc">Sort by Marks (High to Low)</option>
+                <option value="marksAsc">Sort by Marks (Low to High)</option>
+              </select>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:70px;">#</th>
+                  <th>Name</th>
+                  <th style="width:140px;">Marks</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr ng-repeat="s in filtered = (students | filter:byName | orderBy:orderExpr:reverse) track by $index">
+                  <td>{{$index + 1}}</td>
+
+                  <td ng-class="{'low': s.marks < 40, 'topper': s.marks > 80}">
+                    {{s.name}}
+                  </td>
+
+                  <td ng-class="{'low': s.marks < 40, 'topper': s.marks > 80}">
+                    {{s.marks}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="empty" ng-if="filtered.length === 0">
+              No student found
+            </div>
+          `,
+          link: function (scope) {
+            // search var
+            scope.q = "";
+
+            // sort var
+            scope.sortOpt = "name";
+            scope.orderExpr = "name";
+            scope.reverse = false;
+
+            // search by name
+            scope.byName = function (s) {
+              var q = (scope.q || "").toLowerCase().trim();
+              if (!q) return true;
+              return String(s.name || "")
+                .toLowerCase()
+                .includes(q);
+            };
+
+            // sorting
+            scope.applySort = function () {
+              if (scope.sortOpt === "marksDesc") {
+                scope.orderExpr = "marks";
+                scope.reverse = true;
+              } else if (scope.sortOpt === "marksAsc") {
+                scope.orderExpr = "marks";
+                scope.reverse = false;
+              } else {
+                scope.orderExpr = "name";
+                scope.reverse = false;
+              }
+            };
+          },
+        };
+      });
+    </script>
+  </body>
+</html>

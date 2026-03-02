@@ -1,0 +1,162 @@
+<!-- 
+ * HOME TASK - STUDENT LIST APP
+!THIS IS MY HANDWRITTEN FUNCTIONALITY FOR THE STUDENT LIST APP TASK. I HAVE ADDED COMMENTS TO EXPLAIN EACH PART OF THE CODE. 
+!PLEASE REVIEW AND LET ME KNOW IF YOU HAVE ANY QUESTIONS OR SUGGESTIONS FOR IMPROVEMENT.
+!I HAVE USED MY UNDERSTANDMENT OF THE MATERIAL PLUS OLD KNOWNLEDGE TO WRITE THIS CODE. 
+!I HAVE ALSO REFERENCED THE TASK DESCRIPTION AND REQUIREMENTS TO ENSURE I COVERED ALL ASPECTS OF THE FUNCTIONALITY. 
+-->
+
+<!doctype html>
+<html lang="en" ng-app="studentApp">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student List App</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+    <!-- ------- 
+   !CSS STYLES 
+    --------- -->
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #dfac4e, #c81c1c);
+      }
+      .card {
+        width: 420px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      }
+      .title {
+        text-align: center;
+        margin: 0 0 18px;
+        font-size: 22px;
+      }
+      .input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+      }
+      .btn {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: none;
+        border-radius: 8px;
+        background: #4e73df;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      ul {
+        margin: 16px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: #fafafa;
+      }
+      .del {
+        border: none;
+        background: #b21f2d;
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .empty {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        text-align: center;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+      }
+    </style>
+  </head>
+
+  <!-- ------- 
+   !MAIN FORM 
+    --------- -->
+  <body ng-controller="studentCtrl">
+    <div class="card">
+      <h2 class="title">Student List App</h2>
+
+      <!-- INPUT BOX -->
+      <input
+        class="input"
+        type="text"
+        placeholder="Enter student name..."
+        ng-model="studentName"
+      />
+
+      <!-- FUNCTION BUTTON -->
+      <button class="btn" ng-click="addStudent()" ng-disabled="!studentName">
+        Add Student
+      </button>
+
+      <!-- STUDENTS LIST -->
+      <div class="empty" ng-if="students.length === 0">
+        No students added yet.
+      </div>
+
+      <ul ng-if="students.length > 0">
+        <li ng-repeat="s in students track by $index">
+          <span>{{ s }}</span>
+          <button class="del" ng-click="deleteStudent($index)">Delete</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ---------------------
+    !FUNCTIONALITY SCRIPTS 
+    ----------------------- -->
+    <script>
+      // DEFINITION OF ANGULAR MODULE AND CONTROLLER
+      var app = angular.module("studentApp", []);
+      app.controller("studentCtrl", function ($scope) {
+        $scope.studentName = "";
+        $scope.students = [];
+
+        // ADD STUDENT FUNCTION
+        $scope.addStudent = function () {
+          var name = ($scope.studentName || "").trim();
+          if (!name) return;
+
+          // ADD STUDENTS TO LIST + CLEAR INPUT
+          $scope.students.push(name);
+          $scope.studentName = "";
+        };
+        // DELETE STUDENT FUNCTION
+        $scope.deleteStudent = function (index) {
+          $scope.students.splice(index, 1);
+        };
+      });
+    </script>
+  </body>
+</html>

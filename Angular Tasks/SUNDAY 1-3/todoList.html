@@ -1,0 +1,216 @@
+<!-- 
+!SUNDAY 1-3-2026 HOME TASK 2
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daily Tasks</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <!-- 
+    !CSS STYTLES
+    -->
+    <style>
+      body {
+        font-family: "Times New Roman", Times, serif;
+        background: #fff;
+        margin: 0;
+        padding: 40px 16px;
+        color: #111;
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+      }
+
+      .card {
+        width: 360px;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .row input {
+        flex: 1;
+        height: 24px;
+        padding: 0 8px;
+        border: 1px solid #999;
+        outline: none;
+      }
+
+      .row button {
+        height: 26px;
+        padding: 0 10px;
+        border: 1px solid #888;
+        background: #eee;
+        cursor: pointer;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 22px;
+      }
+
+      li {
+        margin: 10px 0;
+      }
+
+      .task {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .done {
+        text-decoration: line-through;
+        color: #666;
+      }
+
+      .del {
+        width: 26px;
+        height: 24px;
+        border: 1px solid #bfbfbf;
+        background: #fff;
+        color: #e91e63;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 3px;
+        line-height: 1;
+      }
+      .del_btn {
+        width: 50px;
+        height: 30px;
+        color: #e91e63;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 3px;
+        line-height: 1;
+      }
+      .check_btn {
+        width: 60px;
+        height: 30px;
+        color: #40e91e;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 3px;
+        line-height: 1;
+      }
+    </style>
+  </head>
+
+  <!-- 
+    !MAIN BODY
+    -->
+  <body>
+    <div class="wrap" ng-app="todoApp" ng-controller="mainCtrl">
+      <todo-list tasks="tasks" on-change="onTasksChange(count)"></todo-list>
+      <div style="margin-left: 40px; min-width: 180px">
+        <h2 style="font-size: 18px">Checklist</h2>
+        <div>Total tasks: {{tasks.length}}</div>
+        <div>Completed: {{doneCount}}</div>
+      </div>
+    </div>
+    <!-- 
+    !FUNCTIONALITY SCRIPTS
+    -->
+    <script>
+      var app = angular.module("todoApp", []);
+
+      app.controller("mainCtrl", function ($scope) {
+        $scope.tasks = [
+          { title: "TASK 1", done: false },
+          { title: "TASK 2", done: false },
+          { title: "TASK 3", done: false },
+        ];
+
+        $scope.doneCount = 0;
+        $scope.onTasksChange = function (count) {
+          $scope.doneCount = count;
+        };
+      });
+
+      app.directive("todoList", function () {
+        return {
+          scope: {
+            tasks: "=",
+            onChange: "&",
+          },
+
+          template: `
+            <div class="card">
+              <h2>Daily Tasks</h2>
+
+              <div class="row">
+                <input type="text" placeholder="New task" ng-model="newTask" />
+                <button ng-click="add()">Add</button>
+                
+              </div>
+
+              <ul>
+                <button class="check_btn" ng-click="checkAll()">Check All</button>
+                <button class="del_btn " ng-click="clearAll()">Delete All</button>
+                <li ng-repeat="t in tasks track by $index">
+                  <div class="task">
+                    <input type="checkbox" ng-model="t.done" ng-change="notify()" />
+                    <span ng-class="{'done': t.done}">{{t.title}}</span>
+                    <button class="del" ng-click="remove($index)">X</button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          `,
+
+          link: function (scope) {
+            scope.newTask = "";
+
+            scope.notify = function () {
+              var count = 0;
+              for (var i = 0; i < scope.tasks.length; i++) {
+                if (scope.tasks[i].done) count++;
+              }
+              scope.onChange({ count: count });
+            };
+            scope.add = function () {
+              var title = (scope.newTask || "").trim();
+              if (!title) return;
+
+              scope.tasks.push({ title: title, done: false });
+              scope.newTask = "";
+              scope.notify();
+            };
+            scope.checkAll = function () {
+              for (var i = 0; i < scope.tasks.length; i++) {
+                scope.tasks[i].done = true;
+              }
+              scope.notify();
+            };
+            scope.remove = function (i) {
+              scope.tasks.splice(i, 1);
+              scope.notify();
+            };
+            scope.clearAll = function () {
+              scope.tasks.length = 0;
+              scope.notify();
+            };
+            scope.notify();
+          },
+        };
+      });
+    </script>
+  </body>
+</html>

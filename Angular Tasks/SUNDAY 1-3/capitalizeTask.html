@@ -1,0 +1,25 @@
+<!-- 
+!SUNDAY 1-3-2026 TASK 1
+-->
+<!doctype html>
+<html>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <body>
+    <div ng-app="firstView">
+      <div ng-controller="firstCtrl">        
+        <h1>{{"hello" | capitalize}}</h1>
+      </div>
+    </div>
+  </body>
+  <script>
+    var app = angular.module("firstView", []);
+    app.controller("firstCtrl", function ($scope) {
+    });
+    
+    app.filter ('capitalize', function(){
+        return function(input){
+            return input.charAt(0).toUpperCase() + input.slice(1);
+        }
+    })
+  </script>
+</html>

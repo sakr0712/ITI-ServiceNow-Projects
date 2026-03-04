@@ -3,112 +3,195 @@
 -->
 
 <!doctype html>
-<html lang="en">
+<html lang="en" ng-app="todoApp">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Daily Tasks</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- 
     !CSS STYTLES
     -->
     <style>
       body {
-        font-family: "Times New Roman", Times, serif;
-        background: #fff;
+        font-family: "Roboto", sans-serif;
+        background: #f4f7f9;
         margin: 0;
         padding: 40px 16px;
-        color: #111;
+        color: #333;
       }
 
       .wrap {
-        max-width: 760px;
+        max-width: 840px;
         margin: 0 auto;
         display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
         justify-content: center;
       }
 
       .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
         width: 360px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
       }
 
       h2 {
-        margin: 0 0 10px;
-        font-size: 20px;
-        font-weight: 700;
+        font-size: 22px;
+        margin-bottom: 16px;
+        color: #1a73e8;
+        text-align: center;
       }
 
       .row {
         display: flex;
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: 10px;
+        margin-bottom: 16px;
       }
 
       .row input {
         flex: 1;
-        height: 24px;
-        padding: 0 8px;
-        border: 1px solid #999;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
         outline: none;
       }
 
+      .row input:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 6px rgba(26, 115, 232, 0.3);
+      }
+
       .row button {
-        height: 26px;
-        padding: 0 10px;
-        border: 1px solid #888;
-        background: #eee;
+        background: #1a73e8;
+        color: #fff;
+        font-weight: 500;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
         cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .row button:hover {
+        background: #1665c1;
       }
 
       ul {
+        list-style: none;
+        padding: 0;
         margin: 0;
-        padding-left: 22px;
       }
 
       li {
-        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9f9f9;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+      }
+
+      li:hover {
+        background: #eef3fb;
       }
 
       .task {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+        flex: 1;
       }
 
       .done {
         text-decoration: line-through;
-        color: #666;
+        color: #999;
+      }
+
+      .del_btn,
+      .check_btn,
+      .del {
+        border: none;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 4px 10px;
+        transition: all 0.2s;
+      }
+
+      .check_btn {
+        background: #40c759;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+
+      .check_btn:hover {
+        background: #34b748;
+      }
+
+      .del_btn {
+        background: #e91e63;
+        color: #fff;
+        margin-left: 10px;
+      }
+
+      .del_btn:hover {
+        background: #d81b60;
       }
 
       .del {
-        width: 26px;
-        height: 24px;
-        border: 1px solid #bfbfbf;
+        background: #f44336;
+        color: #fff;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .del:hover {
+        background: #d32f2f;
+      }
+
+      .checklist {
         background: #fff;
-        color: #e91e63;
-        font-weight: 700;
-        cursor: pointer;
-        border-radius: 3px;
-        line-height: 1;
+        border-radius: 12px;
+        padding: 20px;
+        width: 220px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        height: fit-content;
       }
-      .del_btn {
-        width: 50px;
-        height: 30px;
-        color: #e91e63;
-        font-weight: 700;
-        cursor: pointer;
-        border-radius: 3px;
-        line-height: 1;
+
+      .checklist h2 {
+        font-size: 18px;
+        color: #1a73e8;
+        margin-bottom: 12px;
+        text-align: center;
       }
-      .check_btn {
-        width: 60px;
-        height: 30px;
-        color: #40e91e;
-        font-weight: 700;
-        cursor: pointer;
-        border-radius: 3px;
-        line-height: 1;
+
+      .checklist div {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      @media (max-width: 780px) {
+        .wrap {
+          flex-direction: column;
+          align-items: center;
+        }
       }
     </style>
   </head>
@@ -117,14 +200,16 @@
     !MAIN BODY
     -->
   <body>
-    <div class="wrap" ng-app="todoApp" ng-controller="mainCtrl">
+    <div class="wrap" ng-controller="mainCtrl">
       <todo-list tasks="tasks" on-change="onTasksChange(count)"></todo-list>
-      <div style="margin-left: 40px; min-width: 180px">
-        <h2 style="font-size: 18px">Checklist</h2>
+
+      <div class="checklist">
+        <h2>Checklist</h2>
         <div>Total tasks: {{tasks.length}}</div>
         <div>Completed: {{doneCount}}</div>
       </div>
     </div>
+
     <!-- 
     !FUNCTIONALITY SCRIPTS
     -->
@@ -146,35 +231,32 @@
 
       app.directive("todoList", function () {
         return {
-          scope: {
-            tasks: "=",
-            onChange: "&",
-          },
-
+          scope: { tasks: "=", onChange: "&" },
           template: `
-            <div class="card">
-              <h2>Daily Tasks</h2>
+          <div class="card">
+            <h2>Daily Tasks</h2>
 
-              <div class="row">
-                <input type="text" placeholder="New task" ng-model="newTask" />
-                <button ng-click="add()">Add</button>
-                
-              </div>
-
-              <ul>
-                <button class="check_btn" ng-click="checkAll()">Check All</button>
-                <button class="del_btn " ng-click="clearAll()">Delete All</button>
-                <li ng-repeat="t in tasks track by $index">
-                  <div class="task">
-                    <input type="checkbox" ng-model="t.done" ng-change="notify()" />
-                    <span ng-class="{'done': t.done}">{{t.title}}</span>
-                    <button class="del" ng-click="remove($index)">X</button>
-                  </div>
-                </li>
-              </ul>
+            <div class="row">
+              <input type="text" placeholder="New task" ng-model="newTask" />
+              <button ng-click="add()">Add</button>
             </div>
-          `,
 
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+              <button class="check_btn" ng-click="checkAll()">Check All</button>
+              <button class="del_btn" ng-click="clearAll()">Delete All</button>
+            </div>
+
+            <ul>
+              <li ng-repeat="t in tasks track by $index">
+                <div class="task">
+                  <input type="checkbox" ng-model="t.done" ng-change="notify()" />
+                  <span ng-class="{'done': t.done}">{{t.title}}</span>
+                </div>
+                <button class="del" ng-click="remove($index)">X</button>
+              </li>
+            </ul>
+          </div>
+        `,
           link: function (scope) {
             scope.newTask = "";
 
@@ -185,28 +267,30 @@
               }
               scope.onChange({ count: count });
             };
+
             scope.add = function () {
               var title = (scope.newTask || "").trim();
               if (!title) return;
-
               scope.tasks.push({ title: title, done: false });
               scope.newTask = "";
               scope.notify();
             };
+
             scope.checkAll = function () {
-              for (var i = 0; i < scope.tasks.length; i++) {
-                scope.tasks[i].done = true;
-              }
+              scope.tasks.forEach((t) => (t.done = true));
               scope.notify();
             };
+
             scope.remove = function (i) {
               scope.tasks.splice(i, 1);
               scope.notify();
             };
+
             scope.clearAll = function () {
               scope.tasks.length = 0;
               scope.notify();
             };
+
             scope.notify();
           },
         };

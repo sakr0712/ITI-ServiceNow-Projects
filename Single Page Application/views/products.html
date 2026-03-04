@@ -1,0 +1,129 @@
+<div class="products-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 main-card">
+        <h2 class="text-center">Product Management System</h2>
+
+        <!-- FORM HEADER -->
+        <div class="card-header">
+          {{ isEdit ? 'Edit Product' : 'Add New Product' }}
+        </div>
+
+        <!-- FORM -->
+        <form
+          name="productForm"
+          ng-submit="productForm.$valid && (isEdit ? updateProduct() : addProduct())"
+          novalidate
+        >
+          <div class="row">
+            <div class="col-md-4 form-group">
+              <input
+                type="text"
+                name="title"
+                class="form-control"
+                placeholder="Product Title"
+                ng-model="newProduct.title"
+                required
+                minlength="3"
+              />
+            </div>
+
+            <div class="col-md-4 form-group">
+              <input
+                type="number"
+                name="price"
+                class="form-control"
+                placeholder="Price"
+                ng-model="newProduct.price"
+                required
+                min="1"
+              />
+            </div>
+
+            <div class="col-md-4 form-group">
+              <input
+                type="text"
+                name="description"
+                class="form-control"
+                placeholder="Description"
+                ng-model="newProduct.description"
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-success-custom"
+            ng-disabled="productForm.$invalid"
+          >
+            {{ isEdit ? 'Update Product' : 'Add Product' }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary-custom"
+            ng-if="isEdit"
+            ng-click="cancelEdit()"
+          >
+            Cancel
+          </button>
+        </form>
+
+        <!-- LOADING -->
+        <div ng-if="loading" class="loading-spinner">
+          ⏳ Loading products...
+        </div>
+
+        <!-- ERROR -->
+        <div ng-if="errorMessage" class="error-box text-center">
+          {{ errorMessage }}
+        </div>
+
+        <!-- TABLE -->
+        <hr />
+
+        <table class="table table-bordered table-hover" ng-if="!loading">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th width="160">Price</th>
+              <th>Description</th>
+              <th width="100">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="product in products">
+              <td>{{ $index + 1 }}</td>
+              <td>{{ product.title }}</td>
+              <td><strong>$ {{ product.price }}</strong></td>
+              <td>{{ product.description }}</td>
+              <td>
+                <button
+                  class="btn btn-warning-custom btn-sm"
+                  ng-click="editProduct(product)"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="btn btn-danger-custom btn-sm"
+                  ng-click="deleteProduct(product.id)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+
+            <tr ng-if="products.length === 0">
+              <td colspan="5" class="text-center text-muted">
+                No products available
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

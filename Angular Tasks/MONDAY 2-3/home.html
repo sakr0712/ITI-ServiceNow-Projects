@@ -1,0 +1,296 @@
+<!doctype html>
+<html ng-app="myApp">
+  <head>
+    <title>AngularJS CRUD - Improved Version</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css"
+    />
+
+    <style>
+      body {
+        background: #f5f5f5;
+      }
+      .panel {
+        margin-top: 30px;
+      }
+      .glyphicon-spin {
+        animation: spin 1s infinite linear;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+
+  <body ng-controller="UserController">
+    <div class="container">
+      <h2 class="text-center">Users Management</h2>
+
+      <!-- ================= FORM PANEL ================= -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>{{ isEdit ? 'Edit User' : 'Add New User' }}</strong>
+        </div>
+
+        <div class="panel-body">
+          <form
+            name="userForm"
+            ng-submit="userForm.$valid && (isEdit ? updateUser() : addUser())"
+            novalidate
+          >
+            <div class="row">
+              <!-- NAME -->
+              <div
+                class="col-md-4 form-group"
+                ng-class="{'has-error': userForm.name.$touched && userForm.name.$invalid}"
+              >
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  class="form-control"
+                  ng-model="newUser.name"
+                  required
+                  minlength="3"
+                />
+
+                <small
+                  class="help-block"
+                  ng-if="userForm.name.$touched && userForm.name.$error.required"
+                >
+                  Name is required
+                </small>
+
+                <small
+                  class="help-block"
+                  ng-if="userForm.name.$touched && userForm.name.$error.minlength"
+                >
+                  Minimum 3 characters required
+                </small>
+              </div>
+
+              <!-- EMAIL -->
+              <div
+                class="col-md-4 form-group"
+                ng-class="{'has-error': userForm.email.$touched && userForm.email.$invalid}"
+              >
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  class="form-control"
+                  ng-model="newUser.email"
+                  required
+                />
+
+                <small
+                  class="help-block"
+                  ng-if="userForm.email.$touched && userForm.email.$error.required"
+                >
+                  Email is required
+                </small>
+
+                <small
+                  class="help-block"
+                  ng-if="userForm.email.$touched && userForm.email.$error.email"
+                >
+                  Invalid email format
+                </small>
+              </div>
+
+              <!-- BUTTONS -->
+              <div class="col-md-4" style="margin-top: 25px">
+                <button
+                  type="submit"
+                  class="btn btn-success"
+                  ng-disabled="userForm.$invalid"
+                >
+                  {{ isEdit ? 'Update' : 'Add' }}
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  ng-if="isEdit"
+                  ng-click="cancelEdit()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ================= LOADING ================= -->
+      <div ng-if="loading" class="text-center">
+        <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
+        Loading users...
+      </div>
+
+      <!-- ================= TABLE PANEL ================= -->
+      <div class="panel panel-info" ng-if="!loading">
+        <div class="panel-heading">
+          <strong>User List</strong>
+        </div>
+
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr class="info">
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th width="150">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr ng-repeat="user in users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <button
+                  class="btn btn-warning btn-xs"
+                  ng-click="editUser(user)"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="btn btn-danger btn-xs"
+                  ng-click="deleteUser(user.id)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+
+            <tr ng-if="users.length === 0">
+              <td colspan="4" class="text-center text-muted">No users found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <script>
+      angular
+        .module("myApp", [])
+
+        .service("UserService", function ($http) {
+          const API_URL =
+            "https://spnuxpfrtluagbirquiv.supabase.co/rest/v1/users";
+
+          const config = {
+            headers: {
+              apikey: "sb_publishable_iBx7OvsnV3GiQw4FKLhWKA_p4QpRnKo",
+              Authorization:
+                "Bearer sb_publishable_iBx7OvsnV3GiQw4FKLhWKA_p4QpRnKo",
+              "Content-Type": "application/json",
+            },
+          };
+
+          this.getUsers = function () {
+            return $http.get(API_URL, config);
+          };
+
+          this.createUser = function (user) {
+            return $http.post(API_URL, user, config);
+          };
+
+          this.updateUser = function (user) {
+            return $http.patch(API_URL + "?id=eq." + user.id, user, config);
+          };
+
+          this.deleteUser = function (id) {
+            return $http.delete(API_URL + "?id=eq." + id, config);
+          };
+        })
+
+        .controller("UserController", function ($scope, UserService) {
+          $scope.users = [];
+          $scope.newUser = {};
+          $scope.isEdit = false;
+          $scope.loading = false;
+
+          // LOAD USERS
+          $scope.loadUsers = function () {
+            $scope.loading = true;
+
+            UserService.getUsers()
+              .then(function (response) {
+                $scope.users = response.data;
+              })
+              .catch(function (error) {
+                console.log("Error loading users", error);
+              })
+              .finally(function () {
+                $scope.loading = false;
+              });
+          };
+
+          $scope.loadUsers();
+
+          // ADD
+          $scope.addUser = function () {
+            UserService.createUser($scope.newUser)
+              .then(function () {
+                $scope.loadUsers();
+                $scope.newUser = {};
+              })
+              .catch(function (error) {
+                console.log("Error creating user", error);
+              });
+          };
+
+          // EDIT
+          $scope.editUser = function (user) {
+            $scope.isEdit = true;
+            $scope.newUser = angular.copy(user);
+          };
+
+          // UPDATE
+          $scope.updateUser = function () {
+            UserService.updateUser($scope.newUser)
+              .then(function () {
+                $scope.loadUsers();
+                $scope.newUser = {};
+                $scope.isEdit = false;
+              })
+              .catch(function (error) {
+                console.log("Error updating user", error);
+              });
+          };
+
+          // DELETE
+          $scope.deleteUser = function (id) {
+            if (!confirm("Are you sure?")) return;
+
+            UserService.deleteUser(id)
+              .then(function () {
+                $scope.loadUsers();
+              })
+              .catch(function (error) {
+                console.log("Error deleting user", error);
+              });
+          };
+
+          // CANCEL
+          $scope.cancelEdit = function () {
+            $scope.isEdit = false;
+            $scope.newUser = {};
+          };
+        });
+    </script>
+  </body>
+</html>

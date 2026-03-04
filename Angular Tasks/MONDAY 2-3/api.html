@@ -1,0 +1,159 @@
+<!-- 
+!MONDAY 2-3-2026 TASK 2
+-->
+<!doctype html>
+<html lang="en" ng-app="myApp">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Users Table</title>
+
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body ng-controller="myCtrl" class="container mt-4">
+    <h2 class="mb-3">Add New User</h2>
+
+    <!-- POST FORM -->
+    <form ng-submit="addUser()" class="card p-3 mb-4 shadow-sm">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">First Name</label>
+          <input
+            type="text"
+            class="form-control"
+            ng-model="newUser.firstName"
+            required
+          />
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Last Name</label>
+          <input
+            type="text"
+            class="form-control"
+            ng-model="newUser.lastName"
+            required
+          />
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Age</label>
+          <input
+            type="number"
+            class="form-control"
+            ng-model="newUser.age"
+            required
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add User</button>
+    </form>
+
+    <!-- Success Alert -->
+    <div class="alert alert-success" ng-if="successMessage">
+      {{ successMessage }}
+    </div>
+
+    <h2 class="mb-3">Users List</h2>
+
+    <!-- USERS TABLE -->
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-if="users.length === 0">
+          <td colspan="5" class="text-center">No users found.</td>
+        </tr>
+        <tr ng-repeat="user in users">
+          <td>{{$index + 1}}</td>
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>{{ user.lastName }}</td>
+          <td>
+            <button
+              class="btn btn-danger btn-sm"
+              ng-click="deleteUser(user.id)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script>
+      const app = angular.module("myApp", []);
+
+      app.controller("myCtrl", function ($scope, $http) {
+        $scope.users = [];
+        $scope.newUser = {};
+        $scope.successMessage = "";
+
+        // GET users
+        $http
+          .get("https://dummyjson.com/users")
+          .then(function (response) {
+            $scope.users = response.data.users;
+          })
+          .catch(function (error) {
+            console.error("Error fetching users:", error);
+          });
+
+        // POST user
+        $scope.addUser = function () {
+          $http
+            .post("https://dummyjson.com/users/add", $scope.newUser)
+            .then(function (response) {
+              // Add returned user to table
+              $scope.users.push(response.data);
+
+              $scope.successMessage = "User added successfully";
+
+              $scope.newUser = {}; // clear form
+            })
+            .catch(function (error) {
+              console.error("Error adding user:", error);
+            });
+        };
+
+        $scope.deleteUser = function (userId) {
+          $http
+            .delete(`https://dummyjson.com/users/${userId}`)
+            .then(function (response) {
+              // Remove user from table
+              $scope.users = $scope.users.filter((u) => u.id !== userId);
+            })
+            .catch(function (error) {
+              console.error("Error deleting user:", error);
+            });
+        };
+      });
+
+      app.service("UserService", function ($http) {
+        const API_URL = "https://dummyjson.com/users";
+        const headers = { "Content-Type": "application/json" };
+        this.getUsers = function () {
+          return $http.get(API_URL);
+        };
+        this.createUser = function (userData) {
+          return $http.post(API_URL, userData, { headers: headers });
+        };
+      });
+    </script>
+  </body>
+</html>

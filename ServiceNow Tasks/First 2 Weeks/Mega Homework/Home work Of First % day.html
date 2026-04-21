@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServiceNow Training Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 10px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: #475569; }
+        
+        /* Prevent text selection where not needed */
+        .no-select { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans selection:bg-emerald-200 min-h-screen flex flex-col">
+
+    <!-- Top Header -->
+    <header class="bg-slate-900 text-white shadow-md z-20 px-4 h-16 flex items-center justify-between border-b border-emerald-500/30 shrink-0">
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSidebar()" class="p-1.5 hover:bg-slate-800 rounded-md transition-colors lg:hidden">
+                <i data-lucide="menu" class="w-5 h-5 text-emerald-400"></i>
+            </button>
+            <i data-lucide="book-open" class="w-6 h-6 text-emerald-400"></i>
+            <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                ServiceNow Training Hub
+            </h1>
+        </div>
+        <div class="text-sm font-medium text-slate-400 hidden sm:block">
+            Hospital Smart System & Reference
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="-translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out fixed lg:static inset-y-0 left-0 mt-16 lg:mt-0 w-72 bg-slate-900 border-r border-slate-800 shadow-xl z-10 flex flex-col text-slate-300 h-[calc(100vh-4rem)] lg:h-auto">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center lg:hidden">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Navigation</h2>
+                <button onclick="toggleSidebar()" class="p-1 text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <nav id="sidebar-nav" class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+                <!-- Navigation items will be injected here by JS -->
+            </nav>
+        </aside>
+
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-0 lg:hidden mt-16"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50 h-[calc(100vh-4rem)] lg:h-auto w-full">
+            <div class="max-w-4xl mx-auto" id="main-content">
+                <!-- Content will be injected here by JS -->
+            </div>
+        </main>
+    </div>
+
+<script>
+// --- DATA: Q&A ---
+const qaData = [
+  {q:"What is ServiceNow?",a:"A cloud-based IT Service Management (ITSM) platform that automates business processes and workflows."},
+  {q:"What is a ServiceNow Instance?",a:"A single, independent implementation of ServiceNow dedicated to a specific customer (e.g., Dev, Test, Prod)."},
+  {q:"What is the Application Navigator?",a:"The left-side menu used to access all applications and modules in ServiceNow."},
+  {q:"What is the Filter Navigator?",a:"The search bar at the top of the Application Navigator used to quickly find modules."},
+  {q:"What is a User in ServiceNow?",a:"An individual who has a record in the sys_user table and can log in to the system."},
+  {q:"What is a Group?",a:"A collection of users who share a common purpose, like a support team. Stored in sys_user_group table."},
+  {q:"What is a Role?",a:"A collection of permissions that determine what a user can see and do. Stored in sys_user_role table."},
+  {q:"What is the best practice for assigning roles?",a:"Assign roles to groups, and then add users to those groups. Never assign roles directly to users."},
+  {q:"What happens if a user has no roles?",a:"They can log in but will only have access to basic self-service portals, not the backend applications."},
+  {q:"Can a user belong to multiple groups?",a:"Yes, and they will inherit all the roles assigned to all of those groups."},
+  {q:"What is the base table for users?",a:"sys_user"},
+  {q:"What is the base table for groups?",a:"sys_user_group"},
+  {q:"What is the base table for roles?",a:"sys_user_role"},
+  {q:"What is the 'admin' role?",a:"The system administrator role that grants access to almost all features and data in the system."},
+  {q:"What does 'Impersonate User' do?",a:"Allows an admin to view the system exactly as another user would see it. Great for testing ACLs and UI Policies."},
+  {q:"What is User Delegation?",a:"A feature allowing a user to temporarily assign someone else to receive their approvals and task assignments (e.g., while on vacation)."},
+  {q:"What is the 'itil' role?",a:"The standard IT service management role that allows a user to fulfill basic IT tasks like Incidents and Changes."},
+  {q:"What is a Table in ServiceNow?",a:"A collection of records (rows) and fields (columns) that store data."},
+  {q:"What is a Record?",a:"A single row in a table representing one data entity (like one Incident or one Patient)."},
+  {q:"What is a Field?",a:"A column in a table representing a specific piece of data (like Name or Status)."},
+  {q:"What is the System Dictionary?",a:"A table (sys_dictionary) that describes the data types, character limits, and behaviors of all tables and fields in the system."},
+  {q:"What does 'Extending a Table' mean?",a:"Creating a new child table that inherits all the fields and behaviors of a parent table, while adding its own specific fields."},
+  {q:"What is a Base Table?",a:"A table that is not extended from any other table (e.g., Task)."},
+  {q:"What is a Core Table?",a:"A table created by ServiceNow out-of-the-box (e.g., Incident, User)."},
+  {q:"What is a Custom Table?",a:"A table created by an administrator or developer to meet specific business needs. It always starts with 'u_'."},
+  {q:"What is the 'Task' table?",a:"One of the core tables in ServiceNow. Many tables like Incident, Problem, and Change extend from the Task table."},
+  {q:"What is a sys_id?",a:"A unique 32-character Globally Unique Identifier (GUID) assigned to every record in ServiceNow."},
+  {q:"What is a Form View?",a:"A user interface that displays a single record, allowing users to view and edit its fields."},
+  {q:"What is Form Layout?",a:"A tool used to arrange fields on a form, add sections, and bring fields from the table onto the visual form."},
+  {q:"How do you access Form Layout?",a:"Right-click the form header > Configure > Form Layout."},
+  {q:"What are Form Sections?",a:"Tabs or dividers used to organize related fields logically on a single form."},
+  {q:"What is a List View?",a:"A user interface that displays multiple records from a table in rows and columns."},
+  {q:"What is List Layout?",a:"A tool used globally to determine which columns (fields) are shown in a list view for all users."},
+  {q:"What is List Personalization?",a:"The gear icon on a list that allows individual users to add, remove, or rearrange columns for their own view only, without affecting others."},
+  {q:"What are Breadcrumbs in a list?",a:"The blue links at the top of a list representing the active filter conditions applied to the data."},
+  {q:"What do 'Show Matching' and 'Filter Out' do?",a:"Right-click context menu options in a list to instantly filter records to match, or exclude, the selected cell's value."},
+  {q:"What is an Activity Stream?",a:"A journal section on a form tracking history, work notes, additional comments, and system updates."},
+  {q:"What is a Reference Field?",a:"A field that stores a link (the sys_id) to a record in another table. It displays a magnifying glass icon."},
+  {q:"What is a Reference Qualifier?",a:"A filter applied to a reference field to restrict the selectable records (e.g., only showing 'Active' users)."},
+  {q:"What is a Simple Reference Qualifier?",a:"A basic condition builder filter applied directly on the dictionary entry of a reference field."},
+  {q:"What is a Dynamic Reference Qualifier?",a:"A qualifier that uses a dynamic filter option to evaluate conditions against the current logged-in user or current date."},
+  {q:"What is a UI Policy?",a:"A rule applied to a form to dynamically change field behavior (Mandatory, Visible, Read-Only) based on conditions."},
+  {q:"Where do UI Policies execute?",a:"On the client side (in the user's browser) when a form is loaded or changed."},
+  {q:"What are the three main actions a UI Policy can take?",a:"Make a field Mandatory, Visible, or Read-Only."},
+  {q:"What is the 'Reverse if false' option in a UI Policy?",a:"If checked, the policy will automatically apply the opposite actions when the condition is no longer met."},
+  {q:"Does a UI Policy apply to a List View?",a:"No, UI Policies only govern behavior on forms."},
+  {q:"What is a Data Policy?",a:"A rule that enforces data consistency by setting fields as mandatory or read-only at the database level."},
+  {q:"Where do Data Policies execute?",a:"On the server side (database)."},
+  {q:"What is the main difference between a UI Policy and a Data Policy?",a:"UI Policies only affect the form in the browser. Data Policies enforce rules everywhere, including imports, APIs, and background scripts."},
+  {q:"Can a Data Policy be applied as a UI Policy?",a:"Yes, there is a checkbox 'Use as UI Policy on client' to make it execute on the form as well."},
+  {q:"Why are Data Policies important during data imports?",a:"Because they prevent bad or incomplete data (like missing mandatory fields) from being saved to the database via Excel imports."},
+  {q:"If a UI Policy makes a field visible, can a Data Policy do the same?",a:"No, Data Policies cannot control visibility, only Mandatory and Read-Only states."},
+  {q:"What happens if a UI Policy makes a field optional, but a Data Policy makes it mandatory?",a:"The Data Policy wins. If the user leaves it blank, the system will throw an error upon saving."},
+  {q:"What is an Import Set?",a:"A tool used to import data from various data sources (Excel, CSV, XML) and map that data into ServiceNow tables."},
+  {q:"What is a Data Source?",a:"The location and type of data being imported (e.g., an attached Excel file)."},
+  {q:"What is a Staging Table (Import Set Table)?",a:"A temporary table automatically created to hold the raw imported data before it is transformed."},
+  {q:"What is a Transform Map?",a:"A set of field maps that define how data from the staging table maps to the fields in the target table."},
+  {q:"What is the Target Table?",a:"The final ServiceNow table where the imported data will be permanently saved (e.g., Incident, Patient)."},
+  {q:"What is Coalescing in a Transform Map?",a:"A setting that determines if an imported record should create a new record or update an existing one based on a unique key."},
+  {q:"What happens if no Coalesce field is selected?",a:"Every row in the imported file will be treated as a new record, which can cause duplicate data."},
+  {q:"What happens if a match is found using the Coalesce field?",a:"The existing record in the target table is updated with the new data."},
+  {q:"What happens if a match is NOT found using the Coalesce field?",a:"A completely new record is inserted into the target table."},
+  {q:"What is an Auto Map Matching Fields function?",a:"A utility in the Transform Map that automatically maps staging fields to target fields if their names match exactly."},
+  {q:"Where can you check if an import was successful or failed?",a:"In the Import Set Log or Transform History."},
+  {q:"What is an ACL?",a:"Access Control List. It is a security rule that defines who can access what data and operations in ServiceNow."},
+  {q:"What are the 4 basic operations an ACL can govern?",a:"CRUD: Create, Read, Update (Write), Delete."},
+  {q:"What is a Table-Level ACL?",a:"A rule that grants or denies access to an entire record/table. (e.g., 'Incident -- None')."},
+  {q:"What is a Field-Level ACL?",a:"A rule that grants or denies access to a specific column/field on a table. (e.g., 'Incident -- Number')."},
+  {q:"What is the evaluation order for ACLs?",a:"Table-level ACLs are evaluated first. If passed, Field-level ACLs are evaluated next."},
+  {q:"What happens if a user passes the Table ACL but fails the Field ACL?",a:"They can see the record, but that specific field will be hidden or read-only."},
+  {q:"What happens if a user fails the Table ACL but passes the Field ACL?",a:"Access is denied. They cannot see the record or the field."},
+  {q:"What three checks are evaluated within an ACL?",a:"Role requirement, Condition builder requirement, and Script evaluation."},
+  {q:"In what order are the checks inside an ACL evaluated?",a:"Role first, then Condition, then Script. If one fails, the rest are not evaluated."},
+  {q:"What role is required to create or modify an ACL?",a:"security_admin"},
+  {q:"How do you activate the security_admin role?",a:"You must click your profile, select 'Elevate Roles', and check 'security_admin' for the current session."},
+  {q:"What happens if there are no ACLs defined for a custom table?",a:"By default, no one (except admins) has access to it. It is locked down until an ACL is created."},
+  {q:"What is the wildcard (*) ACL rule?",a:"It applies the rule to all fields on the table that do not have their own specific field-level ACL."},
+  {q:"Can multiple ACLs exist for the same table and operation?",a:"Yes. If there are multiple, the user only needs to pass ONE of the ACLs to gain access (OR logic)."},
+  {q:"What is a Notification in ServiceNow?",a:"An automated email or SMS message sent by the system to users based on certain events or conditions."},
+  {q:"What are the two main ways a Notification can be triggered?",a:"When a record is inserted/updated (Condition), or when an Event is fired."},
+  {q:"In a Notification, what does 'Who will receive' define?",a:"The users, groups, or dynamic reference fields (like Assigned To) that will get the email."},
+  {q:"In a Notification, what does 'What it will contain' define?",a:"The subject line and HTML body of the email message."},
+  {q:"How can you dynamically include the record number in an email subject?",a:"By using variable substitution, e.g., ${number}."},
+  {q:"What is Dot-Walking?",a:"The process of navigating from a reference field to a field on the related table (e.g., Assigned_to.Manager.Email)."},
+  {q:"Where can you use Dot-Walking?",a:"In list layouts, reports, notifications, UI policies, and scripts."},
+  {q:"How do you add a new choice to a drop-down field without scripting?",a:"Right-click the field > Configure Dictionary > scroll to Choices related list > New."},
+  {q:"What is a System Property?",a:"A setting stored in the sys_properties table that changes global behavior (e.g., banner color, time zone)."},
+  {q:"What happens if a user types 'table_name.list' in the filter navigator?",a:"It opens the list view for that specific table in the current window."},
+  {q:"What happens if a user types 'table_name.do' in the filter navigator?",a:"It opens a new, blank form to create a record in that table."},
+  {q:"What does an asterisk (*) mean in the filter navigator search?",a:"It performs a 'contains' search instead of a 'starts with' search."},
+  {q:"How do you export records from a list view?",a:"Right-click any column header > Export > Choose format (Excel, PDF, CSV)."},
+  {q:"What is a Filter Condition?",a:"A set of field, operator, and value statements used to query records (e.g., Active IS true)."},
+  {q:"What is a Module?",a:"A link inside an Application Menu that opens a specific list, form, or page."},
+  {q:"How do you create a new Module?",a:"Navigate to System Definition > Modules > New."},
+  {q:"What is a Related List?",a:"A list at the bottom of a form that shows records from another table that are linked to the current record."},
+  {q:"How do you add a Related List to a form?",a:"Right-click the form header > Configure > Related Lists."},
+  {q:"What is the gear icon on the banner frame used for?",a:"Accessing System Settings (theme, time zone, developer options)."},
+  {q:"Why should you never assign the admin role to a standard user?",a:"Because it bypasses all security checks and allows them to alter or delete the entire system architecture."}
+];
+
+// --- DATA: Mock Test ---
+const mockTest = [
+  {q:"Which tool is used to quickly search for applications and modules in the left navigation pane?",opts:["Global Search","Filter Navigator","List View","Breadcrumbs"],ans:1},
+  {q:"What is the primary way to interact with a single record in ServiceNow?",opts:["List View","Dashboard","Form View","Report"],ans:2},
+  {q:"Which role allows a user to perform almost all functions within the system?",opts:["itil","security_admin","admin","approver_user"],ans:2},
+  {q:"Which table acts as the base class for many IT Service Management tables like Incident and Problem?",opts:["sys_user","cmdb_ci","task","core_company"],ans:2},
+  {q:"What is the 32-character unique identifier given to every record in ServiceNow?",opts:["sys_number","record_id","sys_id","uuid"],ans:2},
+  {q:"Which feature allows an admin to view the system as another user for troubleshooting?",opts:["Elevate Roles","Impersonate User","Delegate User","Switch View"],ans:1},
+  {q:"What is the best practice for granting access to users?",opts:["Assign roles directly to users","Assign users to groups, and roles to groups","Assign groups to roles","Give everyone admin"],ans:1},
+  {q:"Which of the following is a core, out-of-the-box table?",opts:["u_patient","u_hospital","sys_user","u_billing"],ans:2},
+  {q:"What prefix is automatically added to custom tables created by an administrator?",opts:["c_","sys_","sn_","u_"],ans:3},
+  {q:"How do you access the Form Layout configuration?",opts:["Click the gear icon","Right-click the form header > Configure > Form Layout","System Properties","Application Navigator > Form Layout"],ans:1},
+  {q:"What are the blue links at the top of a List View called that show the current filter?",opts:["Activity Stream","Breadcrumbs","Related Links","Filter Conditions"],ans:1},
+  {q:"Which option allows a user to add or remove columns on their own List View without affecting others?",opts:["List Layout","Personalize List (Gear Icon)","View Management","List Control"],ans:1},
+  {q:"What type of field stores a link to a record in another table?",opts:["Choice","String","Reference","Journal"],ans:2},
+  {q:"What is used to filter the selectable options inside a Reference Field?",opts:["UI Policy","Data Policy","Reference Qualifier","ACL"],ans:2},
+  {q:"Which tool dynamically changes a field to be Mandatory, Visible, or Read-Only on a form?",opts:["Business Rule","UI Policy","Data Policy","Client Script"],ans:1},
+  {q:"Where do UI Policies execute?",opts:["Server side","Client side (Browser)","Database level","Import set level"],ans:1},
+  {q:"Which tool enforces data consistency on the server side (including during imports)?",opts:["UI Policy","Data Policy","Reference Qualifier","Form Layout"],ans:1},
+  {q:"If a UI Policy makes a field Optional, but a Data Policy makes it Mandatory, what happens?",opts:["The field is optional","The system crashes","The Data Policy wins and the field is mandatory upon save","The UI Policy wins"],ans:2},
+  {q:"What is the temporary table created automatically during data import called?",opts:["Target Table","Data Source","Staging Table","Transform Map"],ans:2},
+  {q:"Which component maps fields from the Staging Table to the Target Table?",opts:["Import Set","Data Source","Transform Map","Coalesce"],ans:2},
+  {q:"What is the purpose of 'Coalesce' in a Transform Map?",opts:["To delete old records","To update existing records if a match is found, preventing duplicates","To make fields mandatory","To map field names automatically"],ans:1},
+  {q:"If no Coalesce field is selected during an import, what will happen?",opts:["Records are ignored","Existing records are updated","All rows are inserted as new records","The import will fail"],ans:2},
+  {q:"What does ACL stand for?",opts:["Access Control List","Application Configuration Logic","Admin Control Level","Active Client Link"],ans:0},
+  {q:"Which role is explicitly required to create or modify an ACL?",opts:["admin","itil","security_admin","acl_admin"],ans:2},
+  {q:"In what order are ACLs evaluated?",opts:["Field level first, then Table level","Table level first, then Field level","Simultaneously","Alphabetically"],ans:1},
+  {q:"Which of the following is NOT evaluated inside an ACL rule?",opts:["Role","Condition","Script","UI Policy"],ans:3},
+  {q:"What must you do to utilize the security_admin role?",opts:["Just log in","Impersonate a security user","Click Profile > Elevate Roles","Submit a Change Request"],ans:2},
+  {q:"What can trigger an Email Notification in ServiceNow?",opts:["Record inserted/updated","Event fired","Both A and B","UI Policy"],ans:2},
+  {q:"What is the syntax to dynamically insert the 'Short Description' into an email subject?",opts:["${short_description}","&short_description&","[short_description]","<short_description>"],ans:0},
+  {q:"What is the technique called when you navigate from a reference field to a field on the target table (e.g., Caller.Manager.Name)?",opts:["Cross-referencing","Dot-walking","Data mapping","Tree-traversing"],ans:1},
+  {q:"What happens when you type 'incident.list' in the Filter Navigator?",opts:["Creates a new incident","Opens the Incident list in the same window","Opens a dashboard","Runs a report"],ans:1},
+  {q:"What happens when you type 'incident.do' in the Filter Navigator?",opts:["Creates a new blank Incident form","Opens the list","Deletes an incident","Runs a script"],ans:0},
+  {q:"Which table stores Group records?",opts:["sys_user","sys_user_group","sys_user_role","sys_group"],ans:1},
+  {q:"What is the function of the 'Reverse if false' option in a UI Policy?",opts:["Reverses the database changes","Deletes the record","Automatically reverses the UI actions when the condition is no longer met","Disables the policy"],ans:2},
+  {q:"How can you view lists of records related to the current record at the bottom of a form?",opts:["Related Links","Related Lists","Activity Stream","Embedded Lists"],ans:1},
+  {q:"Which of the following is an example of an extended table?",opts:["Task","Incident","sys_user","cmdb"],ans:1},
+  {q:"In a list view, how do you quickly filter to show only records matching a specific cell's value?",opts:["Write a script","Use the global search","Right-click the cell > Show Matching","Create an ACL"],ans:2},
+  {q:"Which component describes the schema, data types, and properties of all tables and fields?",opts:["Transform Map","System Dictionary","Data Policy","List Control"],ans:1},
+  {q:"Which of the following operations is NOT typically governed by a standard ACL?",opts:["Create","Read","Update","Transform"],ans:3},
+  {q:"What indicates a field is Mandatory on a form?",opts:["A red asterisk","A green checkmark","A lock icon","A magnifying glass"],ans:0},
+  {q:"Can a Data Policy be opted-in to run on the UI (Client Side)?",opts:["No, never","Yes, by checking 'Use as UI Policy on client'","Only for admins","Only on custom tables"],ans:1},
+  {q:"What does the gear icon in the banner frame allow you to do?",opts:["Personalize list columns","Configure System Settings like Theme and Timezone","Configure form layout","Elevate roles"],ans:1},
+  {q:"What is the easiest way to add a new option to a Choice list (Drop-down)?",opts:["Write a script","Right-click field > Configure Dictionary > Choices related list","Create a new table","Use a Transform Map"],ans:1},
+  {q:"When using the Filter Navigator, what does an asterisk (*) denote?",opts:["Exact match","Starts with search","Contains search","Ends with search"],ans:2},
+  {q:"What allows users to temporarily delegate their approvals to another user?",opts:["Impersonation","Delegation","Elevate Roles","Group Membership"],ans:1},
+  {q:"Where do you define who receives an email in a Notification?",opts:["What it will contain tab","When to send tab","Who will receive tab","Advanced view"],ans:2},
+  {q:"What type of data source can be used for an Import Set?",opts:["Excel","CSV","XML","All of the above"],ans:3},
+  {q:"If an ACL condition is true, but the user does not have the required role, what happens?",opts:["Access is granted","Access is denied","The script is evaluated","The user is prompted for a password"],ans:1},
+  {q:"What is the primary benefit of grouping records in a list view?",opts:["It deletes duplicates","It organizes data categorically for easy counting and viewing","It applies a Data Policy","It exports to Excel faster"],ans:1},
+  {q:"If a user belongs to 'IT Team' and 'Network Team', what roles do they have?",opts:["Only IT Team roles","Only Network Team roles","All roles combined from both groups","No roles"],ans:2}
+];
+
+// --- TEMPLATE HELPERS ---
+const Alert = (type, text) => {
+    const styles = {
+        warning: 'bg-amber-50 border-l-4 border-amber-500 text-amber-900',
+        info: 'bg-blue-50 border-l-4 border-blue-500 text-blue-900',
+        success: 'bg-green-50 border-l-4 border-green-500 text-green-900'
+    };
+    return `<div class="p-4 rounded-md mb-6 shadow-sm ${styles[type] || styles.info}">${text}</div>`;
+};
+
+const TaskList = (items) => {
+    let listItems = items.map(item => `
+        <li class="flex items-start">
+            <input type="checkbox" class="mt-1 mr-3 w-4 h-4 text-emerald-600 rounded cursor-pointer" />
+            <span class="text-slate-700 leading-relaxed">${item}</span>
+        </li>
+    `).join('');
+    return `<ul class="space-y-3 mb-6">${listItems}</ul>`;
+};
+
+const DataTable = (headers, rows) => {
+    let thead = headers.map(h => `<th class="px-4 py-3">${h}</th>`).join('');
+    let tbody = rows.map(row => `
+        <tr class="hover:bg-slate-50">
+            ${row.map(cell => `<td class="px-4 py-3 text-slate-600 border-t border-slate-200">${cell}</td>`).join('')}
+        </tr>
+    `).join('');
+    
+    return `
+    <div class="overflow-x-auto mb-8 border border-slate-200 rounded-lg shadow-sm">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>${thead}</tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+                ${tbody}
+            </tbody>
+        </table>
+    </div>`;
+};
+
+// --- CUSTOM CONTENT TEMPLATES ---
+const WelcomePage = () => `
+  <div class="space-y-6">
+    ${Alert('warning', '<strong>Student Instructions:</strong><br />Welcome to your 4-Day Mega Assignment! Use your existing Hospital Management application as the base. <b>Do not delete or rename old tables.</b> Build the new features on top of your current project.')}
+    <h3 class="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">Evaluation Rubric</h3>
+    <p class="text-slate-600 mb-4">Total Marks: <strong>100</strong></p>
+    <ul class="list-disc pl-5 space-y-2 text-slate-700">
+      <li>Table design and fields (20)</li>
+      <li>Reference relationships (15)</li>
+      <li>Users / roles / groups (10)</li>
+      <li>UI policy / data policy (15)</li>
+      <li>Notifications (10)</li>
+      <li>Import set / transform map (10)</li>
+      <li>ACL (10)</li>
+      <li>Filters / group by / export (10)</li>
+    </ul>
+  </div>`;
+
+const Phase1Page = () => `
+  <div class="space-y-6">
+    ${Alert('info', 'Please verify that your instance contains all of the following from previous classes before starting the new assignment. Do not rebuild these.')}
+    <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">1. Existing Tables & Fields</h3>
+    <ul class="list-disc pl-5 space-y-2 text-slate-700 mb-6">
+      <li><strong>Department Table:</strong> Department Name, Department Code, Floor Number, HOD Name</li>
+      <li><strong>Doctor Table:</strong> Doctor Name, Doctor ID, Specialization, Phone, Email, Department (Reference), Availability</li>
+      <li><strong>Patient Table:</strong> Patient Name, Patient ID, Age, Gender, Phone, Address, Blood Group, Admitted Date</li>
+      <li><strong>Room Table:</strong> Room Number, Room Type, Floor, Availability, Charges Per Day</li>
+      <li><strong>Appointment Table:</strong> Appointment Number, Patient (Reference), Doctor (Reference), Department (Reference), Date, Time, Status</li>
+      <li><strong>Billing Table:</strong> Bill Number, Patient (Reference), Appointment (Reference), Room (Reference), Total Amount, Payment Status, Payment Date</li>
+    </ul>
+    <h3 class="text-lg font-bold text-slate-800 mb-3">2. Existing Users, Roles, & Groups</h3>
+    <ul class="list-disc pl-5 space-y-2 text-slate-700 mb-6">
+      <li><strong>Users:</strong> Receptionist, Doctor, Billing Staff, Admin</li>
+      <li><strong>Roles:</strong> hospital_admin, hospital_doctor, hospital_receptionist, hospital_billing</li>
+      <li><strong>Groups:</strong> Admin Team, Doctors Team, Reception Team, Billing Team</li>
+    </ul>
+    <h3 class="text-lg font-bold text-slate-800 mb-3">3. Existing Automation & Imports</h3>
+    <ul class="list-disc pl-5 space-y-2 text-slate-700">
+      <li><strong>UI Policy:</strong> If Patient Type = IPD → Admitted Date is visible and mandatory.</li>
+      <li><strong>Data Policy:</strong> Phone Number must always be mandatory.</li>
+      <li><strong>Notification:</strong> Notify doctor when an appointment is created.</li>
+      <li><strong>Excel Import:</strong> Patient data imported from Excel via Transform Map.</li>
+    </ul>
+  </div>`;
+
+const Phase2Page = () => `
+  <div class="space-y-8">
+    <p class="text-slate-500 italic mb-6">Navigate to: System Definition → Tables → New</p>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">1. Nurse Table (u_nurse)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Nurse Name', 'String', ''], ['Nurse ID', 'String', ''], ['Phone Number', 'String', ''],
+        ['Email', 'String', ''], ['Department', 'Reference', 'Target: Department'],
+        ['Shift Type', 'Choice', ''], ['Availability Status', 'Choice', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">2. Lab Test Master Table (u_lab_test_master)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Test Name', 'String', ''], ['Test Code', 'String', ''], ['Test Category', 'Choice', ''],
+        ['Standard Charge', 'Currency', ''], ['Status', 'Choice', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">3. Pharmacy Item Table (u_pharmacy_item)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Medicine Name', 'String', ''], ['Medicine Code', 'String', ''], ['Category', 'Choice', ''],
+        ['Unit Price', 'Currency', ''], ['Stock Quantity', 'Integer', ''],
+        ['Expiry Date', 'Date', ''], ['Status', 'Choice', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">4. Prescription Table (u_prescription)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Prescription Number', 'String', ''], ['Patient', 'Reference', 'Target: Patient'],
+        ['Doctor', 'Reference', 'Target: Doctor'], ['Appointment', 'Reference', 'Target: Appointment'],
+        ['Prescription Date', 'Date', ''], ['Notes', 'String', ''], ['Status', 'Choice', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">5. Prescription Item Table (u_prescription_item)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Prescription', 'Reference', 'Target: Prescription'], ['Pharmacy Item', 'Reference', 'Target: Pharmacy Item'],
+        ['Dosage', 'String', ''], ['Frequency', 'String', ''], ['Duration in Days', 'Integer', ''],
+        ['Instruction Notes', 'String', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">6. Insurance Provider Table (u_insurance_provider)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Provider Name', 'String', ''], ['Provider Code', 'String', ''], ['Contact Number', 'String', ''],
+        ['Email', 'String', ''], ['Address', 'String', ''], ['Status', 'Choice', '']
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-blue-700 mb-3">7. Patient Insurance Table (u_patient_insurance)</h3>
+      ${DataTable(['Field Name', 'Type', 'Reference / Details'], [
+        ['Patient', 'Reference', 'Target: Patient'], ['Insurance Provider', 'Reference', 'Target: Insurance Provider'],
+        ['Policy Number', 'String', ''], ['Valid From', 'Date', ''], ['Valid To', 'Date', ''],
+        ['Coverage Type', 'Choice', ''], ['Status', 'Choice', '']
+      ])}
+    </div>
+  </div>`;
+
+const Phase3Page = () => `
+  <div>
+    <p class="text-slate-600 mb-6 font-medium">Do not replace current fields. Only add these new ones to your existing Phase 1 tables.</p>
+    ${TaskList([
+      "<strong>Patient Table:</strong> Add Email, Marital Status, City, State, Insurance Required (True/False), Emergency Contact Name.",
+      "<strong>Doctor Table:</strong> Add Qualification, Years of Experience, Room Number, Consultation Mode, Joining Date.",
+      "<strong>Appointment Table:</strong> Add Token Number, Appointment Type, Check-In Status, Payment Required, Follow-up Needed.",
+      "<strong>Billing Table:</strong> Add Insurance Applied (True/False), Discount Amount, Final Payable Amount, Payment Received By, Receipt Number."
+    ])}
+  </div>`;
+
+const Phase4Page = () => `
+  <div>
+    <p class="text-slate-600 mb-6 font-medium">Extend your old setup with these new records.</p>
+    ${TaskList([
+      "<strong>Create Roles:</strong> hospital_nurse, hospital_lab, hospital_pharmacy, hospital_insurance.",
+      "<strong>Create Groups:</strong> Nursing Team, Lab Team, Pharmacy Team, Insurance Team.",
+      "<strong>Create Users:</strong> Nurse User 1, Lab Technician 1, Pharmacy Staff 1, Insurance Coordinator 1.",
+      "<strong>Assignment Logic:</strong> Assign the new roles to the new groups, then assign the new users to those groups."
+    ])}
+  </div>`;
+
+const Phase5Page = () => `
+  <div class="space-y-8">
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">UI Policies</h3>
+      ${TaskList([
+        "<strong>Policy 1 (Patient):</strong> If <code>Insurance Required</code> = Yes ➔ Show Patient Insurance related information and make insurance-related fields mandatory.",
+        "<strong>Policy 2 (Appointment):</strong> If <code>Appointment Type</code> = Follow-up ➔ Make <code>Follow-up Needed</code> visible and mandatory.",
+        "<strong>Policy 3 (Billing):</strong> If <code>Insurance Applied</code> = Yes ➔ Show Insurance Provider / Insurance field and make it mandatory.",
+        "<strong>Policy 4 (Prescription Item):</strong> If <code>Duration in Days</code> is filled ➔ Make <code>Instruction Notes</code> visible."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Data Policies</h3>
+      ${TaskList([
+        "<strong>Policy 1 (Patient):</strong> Make Patient Name, Phone Number, and Gender mandatory (Must work even during import).",
+        "<strong>Policy 2 (Doctor):</strong> Make Doctor Name, Department, and Specialization mandatory.",
+        "<strong>Policy 3 (Pharmacy Item):</strong> Make Medicine Name, Unit Price, and Stock Quantity mandatory.",
+        "<strong>Policy 4 (Patient Insurance):</strong> Make Patient, Insurance Provider, and Policy Number mandatory."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Notifications</h3>
+      ${TaskList([
+        "<strong>Notif 1:</strong> When a Lab Request is created ➔ Notify the Lab Team.",
+        "<strong>Notif 2:</strong> When a Bill is generated ➔ Notify the Billing Team.",
+        "<strong>Notif 3:</strong> When a Prescription is created ➔ Notify the Pharmacy Team."
+      ])}
+    </div>
+  </div>`;
+
+const Phase6Page = () => `
+  <div class="space-y-8">
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Simple Reference Qualifiers</h3>
+      ${TaskList([
+        "<strong>Task 1 (Appointment Table):</strong> Doctor field should show only active/available doctors.",
+        "<strong>Task 2 (Nurse Table):</strong> Department reference should show only active departments.",
+        "<strong>Task 3 (Prescription Item):</strong> Pharmacy Item should show only active medicines.",
+        "<strong>Task 4 (Billing Table):</strong> Patient Insurance should show only active insurance records."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">ACLs (Access Controls)</h3>
+      ${TaskList([
+        "<strong>ACL 1:</strong> Only Billing Team can read the Billing table.",
+        "<strong>ACL 2:</strong> Only Doctors Team can create Prescriptions.",
+        "<strong>ACL 3:</strong> Only Lab Team can update Lab Request status.",
+        "<strong>ACL 4:</strong> Only Insurance Team can read Patient Insurance.",
+        "<strong>ACL 5:</strong> Only Admin Team can modify Doctor details."
+      ])}
+    </div>
+  </div>`;
+
+const Phase7Page = () => `
+  <div class="space-y-8">
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Excel Data Imports</h3>
+      <p class="text-sm text-slate-500 italic mb-4">For each file, configure the Data Source, Import Set, Transform Map, and Field Mapping.</p>
+      ${TaskList([
+        "<strong>Import 1 (Doctors):</strong> Doctor Name, Doctor ID, Department, Specialization, Phone Number, Email.",
+        "<strong>Import 2 (Pharmacy Items):</strong> Medicine Name, Medicine Code, Category, Unit Price, Stock Quantity, Expiry Date."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Form & List Practice</h3>
+      <p class="text-sm text-slate-500 italic mb-4">For Nurse, Pharmacy Item, Prescription, and Patient Insurance tables:</p>
+      ${TaskList([
+        "Configure Form Layout (add useful fields).",
+        "Configure List Layout (add useful columns)."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Filters, Group By & Exports</h3>
+      ${TaskList([
+        "<strong>Create Filters:</strong> Available Doctors, Active Patients, Pending Bills, Active Insurance Records, Low Stock Medicines.",
+        "<strong>Group By:</strong> Appointments by Doctor, Billing by Payment Status, Pharmacy Items by Category, Patients by Patient Type.",
+        "<strong>Exports:</strong> Patient list (Excel), Billing list (PDF), Pharmacy Item list (Excel), Appointment list (PDF)."
+      ])}
+    </div>
+  </div>`;
+
+const Phase8Page = () => `
+  <div class="space-y-8">
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Demonstrate End-to-End Flow:</h3>
+      ${TaskList([
+        "Keep previously created hospital data as is.",
+        "Add a new patient ➔ Add patient insurance ➔ Add a doctor ➔ Book an appointment.",
+        "Create a prescription ➔ Add prescription items.",
+        "Raise a lab request ➔ Generate a bill.",
+        "Apply filter/group by ➔ Export one report to PDF and one to Excel.",
+        "Verify UI policy, data policy, notification, ACL, and reference filtering all work properly."
+      ])}
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📸 Submission Requirements (Screenshots):</h3>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">
+        <li>Newly created tables, field/column setups, and reference fields.</li>
+        <li>New users / roles / groups.</li>
+        <li>UI policies, Data policies, Notifications, ACLs.</li>
+        <li>Import results (transformed records).</li>
+        <li>Filters, group by, and export results.</li>
+        <li><strong>Flow Proof:</strong> Show one full patient flow, one billing flow, and one prescription flow.</li>
+      </ul>
+    </div>
+  </div>`;
+
+const CheatsheetPage = () => `
+  <ul class="space-y-3 text-slate-700 bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+    <li><strong>Create table:</strong> Application Navigator → System Definition → Tables → New</li>
+    <li><strong>Create field:</strong> Open table → Columns → New</li>
+    <li><strong>Create UI Policy:</strong> Open table / form or search UI Policies → New</li>
+    <li><strong>Create Data Policy:</strong> System Definition → Data Policies → New</li>
+    <li><strong>Create Notification:</strong> System Notification → Email → Notifications → New</li>
+    <li><strong>Import Excel:</strong> System Import Sets → Load Data</li>
+    <li><strong>Create Transform Map:</strong> After loading data → Create Transform Map</li>
+    <li><strong>Create ACL:</strong> System Security → Access Control (ACL)</li>
+    <li><strong>Configure Form Layout:</strong> Open record → right-click header → Configure → Form Layout</li>
+    <li><strong>Configure List Layout:</strong> Open list → right-click column → Configure → List Layout</li>
+  </ul>`;
+
+const BestPracticesPage = () => `
+  <div class="space-y-4">
+    ${Alert('warning', '<strong>1. Security & Access:</strong> Always assign roles to Groups, and Users to Groups. Never assign a role directly to a User.')}
+    ${Alert('warning', '<strong>2. Customizations:</strong> Avoid changing Out-Of-The-Box (OOTB) configurations directly. If you need a change, copy the OOTB record or extend the table instead.')}
+    ${Alert('warning', '<strong>3. Naming Conventions:</strong> Give clear, descriptive names to your tables, fields, and groups. Custom tables and fields should always start with <code>u_</code> (the system does this automatically for you).')}
+    ${Alert('warning', '<strong>4. Data Integrity:</strong> Use Reference fields instead of String (text) fields whenever data lives in another table. This prevents typos and duplicate data.')}
+    ${Alert('info', '<strong>5. Testing:</strong> Always test Access Controls (ACLs) and UI Policies by impersonating a user who should <em>not</em> have access, to ensure your security works properly.')}
+  </div>`;
+
+const TipsTricksPage = () => `
+  <div class="space-y-8">
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">🚀 Application Navigator Shortcuts</h3>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">
+        <li><strong><code>table_name.list</code></strong>: Type this in the filter navigator to instantly open the list view (e.g., <code>u_patient.list</code>).</li>
+        <li><strong><code>table_name.LIST</code></strong>: Opens the list view in a brand new browser tab.</li>
+        <li><strong><code>table_name.do</code></strong> or <strong><code>table_name.FORM</code></strong>: Instantly opens a new, blank form to create a record.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">⌨️ Form & List Shortcuts</h3>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">
+        <li><strong>Save & Stay:</strong> Right-click the grey form header and click "Save" to save your work without leaving the page.</li>
+        <li><strong>Filter Breadcrumbs:</strong> Right-click any blue filter condition to quickly copy the URL.</li>
+        <li><strong>Show Matching / Filter Out:</strong> Right-click any cell in a list view to instantly filter for or exclude that value.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">🕵️ User Testing</h3>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">
+        <li><strong>Impersonate User:</strong> Click profile picture ➔ "Impersonate User". Test your ACLs by acting as another user!</li>
+      </ul>
+    </div>
+  </div>`;
+
+const QAPage = () => `
+  <div class="space-y-4">
+    ${qaData.map((item, index) => `
+      <div class="bg-slate-50 border border-slate-200 p-5 rounded-lg shadow-sm">
+        <h4 class="font-bold text-slate-800 mb-2">Q${index + 1}: ${item.q}</h4>
+        <p class="text-slate-600"><strong>A:</strong> ${item.a}</p>
+      </div>
+    `).join('')}
+  </div>`;
+
+// --- MOCK TEST LOGIC & TEMPLATE ---
+let examState = {
+    started: false,
+    timeLeft: 1200,
+    answers: {},
+    submitted: false,
+    interval: null
+};
+
+const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
+
+const handleExamSelect = (qIndex, oIndex) => {
+    if (examState.submitted) return;
+    examState.answers[qIndex] = oIndex;
+    renderMockTestBody();
+};
+
+const startExam = () => {
+    examState.started = true;
+    examState.interval = setInterval(() => {
+        if(examState.timeLeft > 0) {
+            examState.timeLeft--;
+            const timerEl = document.getElementById('mock-timer-display');
+            if(timerEl) {
+                timerEl.innerText = formatTime(examState.timeLeft);
+                if(examState.timeLeft < 120) {
+                    timerEl.parentElement.classList.add('text-red-600', 'animate-pulse');
+                    timerEl.parentElement.classList.remove('text-slate-800');
+                }
+            }
+        } else {
+            submitExam();
+        }
+    }, 1000);
+    renderMockTestBody();
+};
+
+const submitExam = () => {
+    examState.submitted = true;
+    clearInterval(examState.interval);
+    renderMockTestBody();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const renderMockTestBody = () => {
+    const container = document.getElementById('mock-test-container');
+    if(!container) return;
+
+    if (!examState.started) {
+        container.innerHTML = `
+            <div class="text-center py-12">
+                ${Alert('info', '<strong>Instructions:</strong> Click "Start Exam" when you are ready. The timer will begin immediately. When the time is up, the exam will auto-submit.')}
+                <button onclick="startExam()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                    Start Exam (20:00)
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    let score = 0;
+    if(examState.submitted) {
+        mockTest.forEach((q, idx) => {
+            if (examState.answers[idx] === q.ans) score++;
+        });
+    }
+    const percentage = Math.round((score / mockTest.length) * 100);
+
+    let html = `
+        <div class="sticky top-0 z-10 bg-slate-100 border border-slate-300 p-4 rounded-lg shadow-sm flex justify-between items-center mb-8">
+            <strong class="text-slate-800 hidden sm:block">ServiceNow CSA Mock Test</strong>
+            <div class="text-2xl font-bold font-mono ${examState.timeLeft < 120 ? 'text-red-600 animate-pulse' : 'text-slate-800'}">
+                <i data-lucide="clock" class="inline w-6 h-6 mr-2 mb-1"></i>
+                <span id="mock-timer-display">${formatTime(examState.timeLeft)}</span>
+            </div>
+        </div>
+    `;
+
+    if (examState.submitted) {
+        html += `
+            <div class="bg-blue-50 border-2 border-blue-500 rounded-lg p-6 mb-8 text-center text-blue-900 shadow-md">
+                <h3 class="text-2xl font-bold mb-2">Exam Completed!</h3>
+                <p class="text-lg mb-1">Your Score: <strong>${score} / ${mockTest.length}</strong> (${percentage}%)</p>
+                <p class="text-sm text-blue-700 mt-4">Review your correct and incorrect answers below.</p>
+            </div>
+        `;
+    }
+
+    html += `<div class="space-y-8">`;
+    mockTest.forEach((item, qIdx) => {
+        const isCorrect = examState.answers[qIdx] === item.ans;
+        let cardClass = examState.submitted ? 
+            (isCorrect ? 'bg-green-50/30 border-green-200' : 'bg-red-50/30 border-red-200') : 
+            'bg-white border-slate-200 shadow-sm';
+
+        html += `<div class="p-6 border rounded-lg ${cardClass}">
+            <h4 class="font-bold text-slate-800 mb-4 text-lg">${qIdx + 1}. ${item.q}</h4>
+            <div class="space-y-2">`;
+        
+        item.opts.forEach((opt, oIdx) => {
+            let optStyle = "bg-slate-50 border-slate-200 hover:bg-slate-100";
+            if (examState.submitted) {
+                if (oIdx === item.ans) optStyle = "bg-green-100 border-green-500 font-medium"; 
+                else if (examState.answers[qIdx] === oIdx) optStyle = "bg-red-100 border-red-500 text-red-800"; 
+                else optStyle = "bg-slate-50 border-slate-200 opacity-60"; 
+            } else if (examState.answers[qIdx] === oIdx) {
+                optStyle = "bg-blue-50 border-blue-400"; 
+            }
+
+            html += `
+                <label class="block p-3 border rounded cursor-pointer transition-colors ${optStyle} no-select">
+                    <input type="radio" name="q-${qIdx}" value="${oIdx}" 
+                        ${examState.answers[qIdx] === oIdx ? 'checked' : ''} 
+                        ${examState.submitted ? 'disabled' : ''}
+                        onclick="handleExamSelect(${qIdx}, ${oIdx})"
+                        class="mr-3 text-blue-600" />
+                    ${opt}
+                </label>
+            `;
+        });
+
+        html += `</div>`;
+        if (examState.submitted) {
+            html += `<div class="mt-4 text-sm font-bold text-blue-700 bg-blue-50 p-3 rounded">
+                Correct Answer: ${item.opts[item.ans]}
+            </div>`;
+        }
+        html += `</div>`;
+    });
+    html += `</div>`;
+
+    if (!examState.submitted) {
+        html += `
+            <button onclick="submitExam()" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg shadow-md transition-colors text-lg">
+                Submit Exam
+            </button>
+        `;
+    }
+
+    container.innerHTML = html;
+    lucide.createIcons();
+};
+
+const MockTestPageWrapper = () => {
+    // Reset state on load
+    examState = { started: false, timeLeft: 1200, answers: {}, submitted: false, interval: null };
+    // Need a tiny delay for the element to exist in DOM before rendering
+    setTimeout(renderMockTestBody, 10);
+    return `<div id="mock-test-container"></div>`;
+};
+
+
+// --- APP STATE & DATA ---
+const SERVICENOW_TOPICS = [
+  // CATEGORY: Reference Guide (Original)
+  { id: 'overview', category: 'Reference Guide', title: 'Platform Overview', icon: 'layout', navPath: 'N/A', description: 'Welcome to the ServiceNow Training Dashboard. This tool provides quick references, navigation paths, and core concepts for essential ServiceNow administration and development topics.', keyPoints: ['Use the sidebar to navigate through different ServiceNow modules.', 'Each section provides the standard Application Navigator path.', 'Review the key concepts and common use cases for each topic.'], table: 'N/A' },
+  { id: 'tables', category: 'Reference Guide', title: 'Tables & Dictionary', icon: 'database', navPath: 'System Definition > Tables', description: 'Tables are the core data structure in ServiceNow. They store records (rows) and fields (columns). Almost all data, configurations, and scripts are stored in tables.', keyPoints: ['Core tables are provided base system (e.g., Task, Incident, User).', 'Custom tables can be created (usually prefixed with u_).', 'Tables can extend other tables (e.g., Incident extends Task) to inherit fields and behaviors.', 'The Schema Map provides a visual representation of table relationships.'], table: 'sys_db_object' },
+  { id: 'users', category: 'Reference Guide', title: 'Users', icon: 'user', navPath: 'User Administration > Users', description: 'User records represent individuals who can log into the system or who are referenced in the system (like an email contact).', keyPoints: ['Authentication is handled via local login, LDAP, or SSO (SAML).', 'User records store profile details: Name, Email, Manager, Department.', 'Best practice is to assign roles to Groups, not directly to Users.', 'Users can have delegates assigned for approvals during their absence.'], table: 'sys_user' },
+  { id: 'groups', category: 'Reference Guide', title: 'Groups', icon: 'users', navPath: 'User Administration > Groups', description: 'A group is a set of users who share a common purpose. Groups are used to assign work, grant roles, and manage approvals efficiently.', keyPoints: ['Assign roles to groups, then add users to the group to inherit those roles.', 'Used heavily in Agile, ITSM (Assignment Groups), and approvals.', 'Groups can have managers and a parent group for hierarchical organization.', 'Type field helps filter groups for specific tasks (e.g., "ITIL" type for incident assignment).'], table: 'sys_user_group' },
+  { id: 'roles', category: 'Reference Guide', title: 'Roles', icon: 'shield', navPath: 'User Administration > Roles', description: 'Roles control access to features and capabilities in applications and modules. They dictate what a user can see and do within ServiceNow.', keyPoints: ['Roles are evaluating using Access Control Lists (ACLs).', 'The "admin" role has access to almost everything.', 'The "itil" role allows users to open, update, and close standard ITIL records.', 'A role can contain other roles (inherited roles).'], table: 'sys_user_role' },
+  { id: 'filters', category: 'Reference Guide', title: 'Filters', icon: 'filter', navPath: 'Found on any List view (Funnel Icon)', description: 'Filters are a set of conditions applied to a table list to isolate specific records. They use the Condition Builder.', keyPoints: ['Conditions consist of a Field, an Operator, and a Value.', 'Breadcrumbs display the current filter and allow quick removal of conditions.', 'Filters can be saved globally (for everyone), for a specific group, or personally.', 'Used heavily in reporting and module definitions.'], table: 'sys_filter' },
+  { id: 'lists', category: 'Reference Guide', title: 'Lists', icon: 'list', navPath: 'System UI > Lists', description: 'A List displays a set of records from a table. It allows users to view, sort, group, and edit data quickly.', keyPoints: ['List Layout: Configured by admins (applies to all users without a personal list).', 'Personalize List: Individual users can change their own columns (gear icon).', 'List Editing: Allows double-clicking a cell to edit data without opening the form.', 'List Controls: Right-click menus provide options to filter, export, and group.'], table: 'sys_ui_list' },
+  { id: 'forms', category: 'Reference Guide', title: 'Forms', icon: 'file-text', navPath: 'System UI > Views / Form Design', description: 'Forms display fields from a single record in a table. They are used to view, insert, or update records.', keyPoints: ['Form Design allows drag-and-drop placement of fields, sections, and formatters.', 'Forms can have multiple Views (e.g., Default view, Self-Service view).', 'Related Lists appear at the bottom of forms to show associated child records.', 'UI Actions (Buttons, Links) are placed on forms to trigger processes.'], table: 'sys_ui_view' },
+  { id: 'ui_policy', category: 'Reference Guide', title: 'UI Policy', icon: 'monitor', navPath: 'System UI > UI Policies', description: 'UI Policies dynamically change the behavior of information on a form and control custom process flows for tasks.', keyPoints: ['Executes ONLY on the client side (browser).', 'Makes fields Mandatory, Read-Only, or Visible based on conditions.', 'Requires no scripting for basic configuration (using UI Policy Actions).', 'Can execute scripts for more complex client-side logic.'], table: 'sys_ui_policy' },
+  { id: 'data_policy', category: 'Reference Guide', title: 'Data Policy', icon: 'server', navPath: 'System Policy > Rules > Data Policies', description: 'Data Policies enforce data consistency by setting mandatory and read-only states for fields. They run on the server, ensuring rules apply to all data interactions.', keyPoints: ['Executes on the server side (database level).', 'Applies to data imported via Web Services, Import Sets, and scripts.', 'Can optionally be applied to the UI as well.', 'Cannot enforce "visibility" (unlike UI Policies), only mandatory/read-only.'], table: 'sys_data_policy2' },
+  { id: 'data_import', category: 'Reference Guide', title: 'Data Import', icon: 'upload-cloud', navPath: 'System Import Sets > Load Data', description: 'The Import Sets application is used to import data from various data sources, and then map that data into ServiceNow tables.', keyPoints: ['1. Load Data: Upload file or connect to source into an "Import Set Table".', '2. Create Transform Map: Define how source fields map to target.', '3. Coalesce: Select a unique key field to update existing records instead of duplicates.', '4. Run Transform: Execute the map to move data into the target table.'], table: 'sys_import_set' },
+
+  // CATEGORY: Hospital Assignment
+  { id: 'welcome', category: 'Hospital Assignment', title: 'Mega Assignment Welcome', icon: 'stethoscope', render: WelcomePage },
+  { id: 'phase1', category: 'Hospital Assignment', title: 'Phase 1: Already Done', icon: 'check-circle', render: Phase1Page },
+  { id: 'phase2', category: 'Hospital Assignment', title: 'Phase 2: New Tables', icon: 'database', render: Phase2Page },
+  { id: 'phase3', category: 'Hospital Assignment', title: 'Phase 3: Enhancements', icon: 'clipboard-list', render: Phase3Page },
+  { id: 'phase4', category: 'Hospital Assignment', title: 'Phase 4: Users & Roles', icon: 'users', render: Phase4Page },
+  { id: 'phase5', category: 'Hospital Assignment', title: 'Phase 5: Automation', icon: 'settings', render: Phase5Page },
+  { id: 'phase6', category: 'Hospital Assignment', title: 'Phase 6: Security & ACLs', icon: 'lock', render: Phase6Page },
+  { id: 'phase7', category: 'Hospital Assignment', title: 'Phase 7: Imports & UI', icon: 'upload', render: Phase7Page },
+  { id: 'phase8', category: 'Hospital Assignment', title: 'Phase 8: Final Submission', icon: 'flag', render: Phase8Page },
+
+  // CATEGORY: Resources & Testing
+  { id: 'cheatsheet', category: 'Resources & Testing', title: 'Nav Cheat Sheet', icon: 'compass', render: CheatsheetPage },
+  { id: 'bestpractices', category: 'Resources & Testing', title: 'Best Practices', icon: 'star', render: BestPracticesPage },
+  { id: 'tipstricks', category: 'Resources & Testing', title: 'Tips & Tricks', icon: 'lightbulb', render: TipsTricksPage },
+  { id: 'interviewqa', category: 'Resources & Testing', title: '100 Interview Q&A', icon: 'message-circle', render: QAPage },
+  { id: 'csamocktest', category: 'Resources & Testing', title: 'CSA Mock Test', icon: 'file-edit', render: MockTestPageWrapper },
+];
+
+let activeTabId = 'welcome';
+let isSidebarOpen = false;
+
+// --- RENDER LOGIC ---
+
+const toggleSidebar = () => {
+    isSidebarOpen = !isSidebarOpen;
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (isSidebarOpen) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    }
+};
+
+const switchTab = (id) => {
+    activeTabId = id;
+    if (window.innerWidth < 1024) toggleSidebar();
+    
+    // Clear mock test interval if switching away
+    if (examState.interval && id !== 'csamocktest') {
+        clearInterval(examState.interval);
+    }
+    
+    renderApp();
+};
+
+const renderSidebar = () => {
+    const nav = document.getElementById('sidebar-nav');
+    const categories = [...new Set(SERVICENOW_TOPICS.map(t => t.category))];
+    let html = '';
+
+    categories.forEach(category => {
+        html += `
+            <div class="mb-6">
+                <h3 class="px-5 text-xs font-bold text-emerald-500 uppercase tracking-wider mb-2">${category}</h3>
+                <ul class="space-y-0.5 px-3">
+        `;
+        
+        SERVICENOW_TOPICS.filter(t => t.category === category).forEach(topic => {
+            const isActive = activeTabId === topic.id;
+            const btnClass = isActive 
+                ? 'bg-slate-800 text-white shadow-sm ring-1 ring-slate-700' 
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200';
+            const iconClass = isActive ? 'text-emerald-400' : 'text-slate-500';
+            
+            html += `
+                <li>
+                    <button onclick="switchTab('${topic.id}')" class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${btnClass}">
+                        <i data-lucide="${topic.icon}" class="w-4 h-4 mr-3 ${iconClass}"></i>
+                        ${topic.title}
+                        ${isActive ? `<i data-lucide="chevron-right" class="w-4 h-4 ml-auto text-emerald-500 opacity-50"></i>` : ''}
+                    </button>
+                </li>
+            `;
+        });
+        
+        html += `</ul></div>`;
+    });
+
+    nav.innerHTML = html;
+};
+
+const renderMainContent = () => {
+    const contentDiv = document.getElementById('main-content');
+    const activeContent = SERVICENOW_TOPICS.find(t => t.id === activeTabId);
+    if (!activeContent) return;
+
+    let html = `
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 relative overflow-hidden mb-6 fade-in">
+            <div class="absolute -top-4 -right-4 p-8 opacity-[0.03] pointer-events-none">
+                <i data-lucide="${activeContent.icon}" class="w-64 h-64"></i>
+            </div>
+            
+            <div class="relative z-10 flex items-center space-x-4 mb-4">
+                <div class="p-3 bg-slate-100 text-emerald-600 rounded-lg border border-slate-200 shadow-sm">
+                    <i data-lucide="${activeContent.icon}" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">${activeContent.title}</h2>
+                    ${activeContent.navPath && activeContent.navPath !== 'N/A' ? `
+                    <div class="flex items-center text-sm text-slate-500 mt-2">
+                        <span class="font-mono bg-slate-100 px-2.5 py-1 rounded text-xs border border-slate-200 shadow-sm">
+                            ${activeContent.navPath}
+                        </span>
+                    </div>` : ''}
+                </div>
+            </div>
+
+            ${activeContent.description ? `
+            <p class="text-slate-600 text-lg leading-relaxed max-w-3xl border-t border-slate-100 pt-6 mt-4">
+                ${activeContent.description}
+            </p>` : ''}
+        </div>
+    `;
+
+    if (activeContent.render) {
+        html += `
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 fade-in" style="animation-delay: 50ms">
+                ${activeContent.render()}
+            </div>
+        `;
+    } else {
+        // Original Reference Guide renderer
+        let keyPointsHtml = activeContent.keyPoints.map((point, i) => `
+            <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">${i + 1}</span>
+                <span class="text-slate-600 leading-relaxed">${point}</span>
+            </li>
+        `).join('');
+
+        let technicalInfoHtml = `
+            <div>
+                <span class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Backend Table Name</span>
+                <code class="block bg-slate-900 text-emerald-400 px-3 py-2 rounded-md border border-slate-700 text-sm break-all font-mono shadow-inner">${activeContent.table}</code>
+            </div>
+        `;
+
+        if (activeContent.id === 'ui_policy') {
+            technicalInfoHtml += `
+                <div class="bg-slate-700/50 p-3 rounded-md text-sm border border-slate-600 mt-4">
+                    <span class="font-bold text-white block mb-1">vs. Data Policy:</span>
+                    UI Policy is Client-Side (Browser visual only). Data Policy is Server-Side (Database security).
+                </div>`;
+        }
+        if (activeContent.id === 'groups') {
+            technicalInfoHtml += `
+                <div class="bg-slate-700/50 p-3 rounded-md text-sm border border-slate-600 mt-4">
+                    <span class="font-bold text-white block mb-1">Golden Rule:</span>
+                    Assign Roles to Groups. Assign Users to Groups. Never assign Roles directly to Users.
+                </div>`;
+        }
+
+        html += `
+            <div class="grid md:grid-cols-3 gap-6 fade-in" style="animation-delay: 50ms">
+                <div class="md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="book-open" class="w-5 h-5 mr-2 text-emerald-600"></i> Key Concepts & Best Practices
+                    </h3>
+                    <ul class="space-y-4">${keyPointsHtml}</ul>
+                </div>
+                <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6 text-slate-200 relative overflow-hidden">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center relative z-10">
+                        <i data-lucide="info" class="w-5 h-5 mr-2 text-blue-400"></i> Technical Info
+                    </h3>
+                    <div class="relative z-10">${technicalInfoHtml}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    contentDiv.innerHTML = html;
+};
+
+const renderApp = () => {
+    renderSidebar();
+    renderMainContent();
+    lucide.createIcons(); // Initialize icons after rendering HTML
+};
+
+// Anti-Cheat (same as React useEffect hook)
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+    if (e.keyCode === 123) return false;
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 67) return false;
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false;
+    if (e.ctrlKey && e.keyCode === 85) return false;
+});
+
+// Add simple CSS animation for tab switching
+const style = document.createElement('style');
+style.innerHTML = `
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+`;
+document.head.appendChild(style);
+
+// Initial Load
+document.addEventListener('DOMContentLoaded', renderApp);
+
+</script>
+</body>
+</html>
